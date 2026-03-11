@@ -320,10 +320,14 @@
         opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
     }
     .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
-    .xh-play-btn svg {
-        width: 80px; height: 80px; 
-        fill: rgba(240, 240, 240, 0.95); stroke: rgba(240, 240, 240, 0.95); stroke-width: 4; stroke-linejoin: round;
-        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+   .xh-play-btn svg {
+        width: 110px; 
+        height: 110px; 
+        fill: none !important; /* Намертво убирает внутреннюю заливку */
+        stroke: rgba(255, 255, 255, 0.95) !important; /* Чистый белый контур */
+        stroke-width: 6; /* Толщина контура */
+        stroke-linejoin: round; /* Закругляет углы треугольника */
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.7)); /* Делает тень */
     }
 
     /* BOTTOM BAR */
@@ -500,7 +504,9 @@
       <div class="xh-loader xh-shimmer"></div>
       
       <div class="xh-play-btn xh-main-play-trigger" data-target="main_play" aria-label="Play">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg viewBox="0 0 100 100">
+            <path d="M 35 25 L 75 50 L 35 75 Z" />
+        </svg>
       </div>
       
       <div class="xh-bottom-controls" data-target="timeline">
@@ -814,3 +820,4 @@
   <script defer src="./assets/scripts/common.js?v=3"></script>
 </body>
 </html>
+
