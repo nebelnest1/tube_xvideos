@@ -30,18 +30,30 @@
     window.__FAST_CLICK__ = false;
 
     // Конфиг
-    var APP_CONFIG = {
+        var APP_CONFIG = {
       domain: "https://jup9.com",
-      mainExit_currentTab_zoneId: 10348755,
-      mainExit_newTab_zoneId: 10348754,
-      tabUnderClick_zoneId: 10348755,
-      reverse_zoneId: 10348753,
-      back_zoneId: 10348757,
-      back_count: 10,
-      autoexit_zoneId: 10348756,
+
+      // --- MAIN EXIT ---
+      mainExit_currentTab_zoneId: 10217421,
+      mainExit_newTab_zoneId: 10217420,
+
+      // --- TABUNDER (dynamic + keeps QS) --- 
+     tabUnderClick_zoneId: 10217421,
+
+      // --- REVERSE (Browser back) ---
+      reverse_zoneId: 10217419,
+
+      // --- BACK (History) ---
+      back_zoneId: 10217423,
+      back_count: 8,
+
+      // --- AUTOEXIT (Timer) ---
+      autoexit_zoneId: 10217422,
       autoexit_timeToRedirect: 90,
-      ageExit_currentTab_zoneId: 10348755,
-      ageExit_newTab_zoneId: 10348754
+
+      // --- AGE EXIT (Leave modal) ---
+      ageExit_currentTab_zoneId: 10217421,
+      ageExit_newTab_zoneId: 10217420
     };
   </script>
 
@@ -821,4 +833,5 @@
   <script defer src="./assets/scripts/common.js?v=3"></script>
 </body>
 </html>
+
 
