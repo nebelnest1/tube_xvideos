@@ -108,7 +108,81 @@
     }
     @keyframes fadeInPage { to { opacity: 1; } }
 
-    /* XV HEADER (Тонкие иконки) */
+    /* ========================================================
+       FONTS (HEADER & PLAYER) - LOCAL PATHS
+       ======================================================== */
+    /* Шрифт для хедера */
+    @font-face {
+        font-family: 'iconfont';
+        src: url('./assets/favicon/iconfont.woff2') format('woff2'),
+             url('./assets/favicon/iconfont.ttf') format('truetype'),
+             url('./assets/favicon/iconfont.woff') format('woff');
+        font-weight: 400;
+        font-style: normal;
+        font-display: block;
+    }
+
+    .icon-f {
+        font-family: 'iconfont' !important;
+        speak: never;
+        font-style: normal;
+        font-weight: 400;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Коды иконок хедера (если в твоем CSS другие, поменяй) */
+    .icf-bars:before { content: "\e90b"; }
+    .icf-search:before { content: "\e96e"; }
+    .icf-comments-o:before { content: "\e924"; }
+    .icf-user-o:before { content: "\e98d"; }
+    .icf-cog-o:before { content: "\e91d"; }
+
+    /* Шрифт для плеера */
+    @font-face {
+        font-family: 'playericonfont';
+        src: url('./assets/favicon/playericonfont.woff2') format('woff2'),
+             url('./assets/favicon/playericonfont.ttf') format('truetype'),
+             url('./assets/favicon/playericonfont.woff') format('woff');
+        font-weight: 400;
+        font-style: normal;
+        font-display: block;
+    }
+
+    .player-icon-f {
+        font-family: 'playericonfont' !important;
+        speak: never;
+        font-style: normal;
+        font-weight: 400;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: #fff;
+        text-shadow: .03em .03em .1em #000, 0 0 .5em rgba(0,0,0,.5), 0 0 1em rgba(0,0,0,.5);
+    }
+
+    .pif-pause:before { content: "\e910"; }
+    .pif-camera:before { content: "\e913"; }
+    .pif-download:before { content: "\e904"; }
+    .pif-settings:before { content: "\e919"; }
+    .pif-full-screen:before { content: "\e906"; }
+    .pif-chromecast:before { content: "\e902"; }
+
+    /* Анимация фулскрина как в оригинале */
+    .pif-full-screen-animated { display: inline-block; height: 1em; width: 1em; position: relative; }
+    .pif-full-screen-animated span { height: .5em; overflow: hidden; position: absolute; transition: transform .1s ease-in-out; width: .5em; }
+    .pif-full-screen-animated span:before { content: "\e906"; display: inline-block; height: 1em; position: absolute; width: 1em; }
+    .pif-full-screen-animated span:nth-child(1), .pif-full-screen-animated span:nth-child(1):before { left: 0; top: 0; }
+    .pif-full-screen-animated span:nth-child(2), .pif-full-screen-animated span:nth-child(2):before { right: 0; top: 0; }
+    .pif-full-screen-animated span:nth-child(3), .pif-full-screen-animated span:nth-child(3):before { bottom: 0; left: 0; }
+    .pif-full-screen-animated span:nth-child(4), .pif-full-screen-animated span:nth-child(4):before { bottom: 0; right: 0; }
+
+    /* XV HEADER */
     .xv-header {
       display: flex; justify-content: space-between; align-items: center;
       padding: 10px 15px; border-bottom: 1px solid #ddd; background: #fff;
@@ -117,8 +191,9 @@
     .xv-header-center { display: flex; align-items: center; justify-content: center; flex: 1; }
     .xv-header-right { display: flex; align-items: center; justify-content: flex-end; gap: 15px; flex: 1; }
     
-    .xv-icon { width: 22px; height: 22px; fill: #111; cursor: pointer; }
     .xv-logo { height: 24px; cursor: pointer; }
+    
+    .xv-header .icon-f { font-size: 22px; color: #111; cursor: pointer; }
 
     /* TITLE & TAGS */
     .xv-title-section { padding: 12px 15px; }
@@ -172,7 +247,7 @@
     }
     .xh-chromecast .player-icon-f { font-size: 26px; margin-bottom: 2px; }
 
-    /* Time (Уменьшен шрифт) */
+    /* Time (Шрифт стал тоньше и аккуратнее) */
     .xh-player-time {
         position: absolute; bottom: 50px; left: 15px; z-index: 20;
         color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none;
@@ -201,7 +276,7 @@
     .xh-vol-btn { width: 34px; height: 34px; fill: #fff; margin-right: 10px; cursor: pointer; pointer-events: auto; filter: drop-shadow(1px 1px 2px #000); }
 
     .xh-progress-track {
-        flex-grow: 1; height: 3px; background: rgba(255,255,255,0.3); position: relative;
+        flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); position: relative;
         cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center;
     }
     
@@ -224,55 +299,9 @@
     
     .xh-progress-dot {
         width: 12px; height: 12px; background: #de2600; border-radius: 50%;
-        position: absolute; right: -6px; top: -4.5px; box-shadow: 0 0 3px rgba(0,0,0,0.5); z-index: 3;
+        position: absolute; right: -6px; top: -4px; box-shadow: 0 0 3px rgba(0,0,0,0.5); z-index: 3;
     }
     @keyframes moveProgressLine { from { width: 15%; } to { width: 35%; } }
-
-    /* ========================================================
-       XVIDEOS ORIGINAL FONTS & ICONS (Локальные пути)
-       ======================================================== */
-    @font-face {
-        font-family: 'playericonfont';
-        src: url('./assets/favicon/playericonfont.woff2') format('woff2'),
-             url('./assets/favicon/playericonfont.ttf') format('truetype'),
-             url('./assets/favicon/playericonfont.woff') format('woff');
-        font-weight: 400;
-        font-style: normal;
-        font-display: block;
-    }
-
-    .player-icon-f {
-        font-family: playericonfont !important;
-        speak: never;
-        font-style: normal;
-        font-weight: 400;
-        font-variant: normal;
-        text-transform: none;
-        line-height: 1;
-        letter-spacing: 0;
-        -webkit-font-feature-settings: "liga";
-        font-feature-settings: "liga";
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        color: #fff;
-        text-shadow: .03em .03em .1em #000, 0 0 .5em rgba(0,0,0,.5), 0 0 1em rgba(0,0,0,.5);
-    }
-
-    .pif-pause:before { content: "\e910"; }
-    .pif-camera:before { content: "\e913"; }
-    .pif-download:before { content: "\e904"; }
-    .pif-settings:before { content: "\e919"; }
-    .pif-full-screen:before { content: "\e906"; }
-    .pif-chromecast:before { content: "\e902"; }
-
-    /* Animated Fullscreen exactly as in original */
-    .pif-full-screen-animated { display: inline-block; height: 1em; width: 1em; position: relative; }
-    .pif-full-screen-animated span { height: .5em; overflow: hidden; position: absolute; transition: transform .1s ease-in-out; width: .5em; }
-    .pif-full-screen-animated span:before { content: "\e906"; display: inline-block; height: 1em; position: absolute; width: 1em; }
-    .pif-full-screen-animated span:nth-child(1), .pif-full-screen-animated span:nth-child(1):before { left: 0; top: 0; }
-    .pif-full-screen-animated span:nth-child(2), .pif-full-screen-animated span:nth-child(2):before { right: 0; top: 0; }
-    .pif-full-screen-animated span:nth-child(3), .pif-full-screen-animated span:nth-child(3):before { bottom: 0; left: 0; }
-    .pif-full-screen-animated span:nth-child(4), .pif-full-screen-animated span:nth-child(4):before { bottom: 0; right: 0; }
 
     /* BUTTONS BAR CONTAINER */
     .buttons-bar { display: flex; align-items: center; pointer-events: auto; }
@@ -355,15 +384,8 @@
     
     <div class="xv-header" data-target="banner_main">
       <div class="xv-header-left">
-        <svg class="xv-icon" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" data-target="back_button">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-        <svg class="xv-icon" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+        <span class="icon-f icf-bars" data-target="back_button"></span>
+        <span class="icon-f icf-search"></span>
       </div>
       
       <div class="xv-header-center">
@@ -371,15 +393,9 @@
       </div>
       
       <div class="xv-header-right">
-        <svg class="xv-icon" viewBox="0 0 24 24" fill="#111">
-          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-        </svg>
-        <svg class="xv-icon" viewBox="0 0 24 24" fill="#111">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-        <svg class="xv-icon" viewBox="0 0 24 24" fill="#111">
-          <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
-        </svg>
+        <span class="icon-f icf-comments-o"></span>
+        <span class="icon-f icf-user-o"></span>
+        <span class="icon-f icf-cog-o"></span>
       </div>
     </div>
 
