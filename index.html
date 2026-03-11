@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en" data-landing-name="player-v2-xv-fake">
+<html lang="en" data-landing-name="player-v2-xv-neutral">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0" />
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-  <title>Elisa Sanches Wants Big Ebony Trans Cock In Her Ass - XVIDEOS</title>
+  <title>Exclusive Leaked Amateur Video Tape - XVIDEOS</title>
   
   <link rel="preconnect" href="https://cdn.x0x.online">
 
@@ -116,13 +116,6 @@
     .xv-header-left, .xv-header-right { display: flex; align-items: center; gap: 15px; }
     .xv-icon { width: 22px; height: 22px; fill: #111; cursor: pointer; }
     .xv-logo { height: 24px; cursor: pointer; }
-    
-    .xv-subnav {
-      display: flex; justify-content: center; gap: 20px; padding: 8px 0;
-      border-bottom: 1px solid #eee; font-size: 13px; font-weight: bold; color: #333;
-    }
-    .xv-subnav span { display: flex; align-items: center; gap: 5px; cursor: pointer; }
-    .xv-red-badge { background: #e50914; color: #fff; padding: 2px 4px; border-radius: 3px; font-size: 11px; }
 
     /* TITLE & TAGS */
     .xv-title-section { padding: 12px 15px; }
@@ -135,80 +128,202 @@
     .tag-model { display: flex; align-items: center; background: #111; color: #fff; font-size: 12px; padding: 3px 6px; border-radius: 3px; font-weight: bold; }
     .tag-model span { background: #fff; color: #111; font-size: 10px; padding: 1px 4px; border-radius: 2px; margin-left: 6px; font-weight: normal; }
     
-    .tag-model.orange { background: #d32f2f; }
-    .tag-model.orange span { color: #d32f2f; }
-    
     .tag-category { background: #eee; color: #555; font-size: 12px; padding: 3px 8px; border-radius: 3px; }
     .tag-icon { font-size: 14px; color: #888; padding: 0 4px; }
 
-    /* PLAYER */
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; flex-shrink: 0; cursor: pointer; }
-    
+    /* =========================
+       PLAYER CONTAINER (From User CSS + XV Aspect Ratio)
+       ========================= */
+    .xh-fake-player {
+        width: 100%;
+        aspect-ratio: 16/9; /* Сохраняем пропорции, чтобы не ломать верстку XV */
+        position: relative;
+        overflow: hidden;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
     .xh-frame {
-      position: absolute; width: 100%; height: 100%; object-fit: cover;
-      transition: filter 0.5s ease, brightness 0.5s ease;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; 
+        opacity: 0;
+        transition: opacity 0.25s ease-out, filter 0.5s ease;
+        z-index: 1;
     }
-    .xh-frame.loading-state { filter: blur(12px) brightness(0.55); }
-    .xh-frame.is-ready { filter: blur(0px) brightness(1); } 
+    .xh-frame.loading-state { opacity: 1; filter: blur(12px) brightness(0.55); }
+    .xh-frame.is-ready { opacity: 1; filter: blur(0px) brightness(1); }
 
-    /* Лоадер (Шиммер) */
-    .xh-shimmer {
-      position: absolute; top: 50%; left: 50%; width: 46px; height: 46px;
-      border: 4px solid rgba(255,255,255,.15); border-top-color: #fff; border-radius: 50%;
-      transform: translate(-50%,-50%); animation: spin 1s linear infinite; z-index: 30;
-      display: none;
+    /* =========================
+       CENTER PLAY BUTTON
+       ========================= */
+    .xh-play-btn {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
     }
-    @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+    .xh-play-btn.ready {
+        opacity: 1; pointer-events: auto;
+        animation: pulseTriangle 1.8s ease-in-out infinite;
+    }
+    .xh-play-btn svg {
+        width: min(75px, 20vw);
+        height: min(75px, 20vw);
+        fill: rgba(220, 220, 220, 0.95);
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+    }
+    @keyframes pulseTriangle {
+        0%   { transform: translate(-50%, -50%) scale(1); }
+        50%  { transform: translate(-50%, -50%) scale(1.15); }
+        100% { transform: translate(-50%, -50%) scale(1); }
+    }
 
-    /* Кнопка Play по центру (в стиле XV) */
-    .xh-main-play-trigger {
-      position: absolute; top: 50%; left: 50%; width: 70px; height: 50px;
-      background: rgba(255,255,255,0.8); border-radius: 10px; transform: translate(-50%,-50%);
-      z-index: 25; display: flex; align-items: center; justify-content: center;
-      opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.3s ease;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    /* =========================
+       BOTTOM BAR
+       ========================= */
+    .xh-bottom-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 30px 15px 15px 15px;
+        box-sizing: border-box;
+        background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+        z-index: 5;
+        pointer-events: none; /* Чтобы клик проваливался на плеер, если мимо контролов */
     }
-    .xh-main-play-trigger::after {
-      content: ""; border-style: solid; border-width: 12px 0 12px 20px; 
-      border-color: transparent transparent transparent #111; margin-left: 5px;
+    .xh-time {
+        color: #fff;
+        font-size: 15px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     }
-    .xh-main-play-trigger.ready {
-      opacity: 1; visibility: visible; pointer-events: auto;
-      animation: pulseXV 2s infinite;
-    }
-    @keyframes pulseXV {
-      0% { transform: translate(-50%,-50%) scale(1); }
-      50% { transform: translate(-50%,-50%) scale(1.05); }
-      100% { transform: translate(-50%,-50%) scale(1); }
+    .xh-controls-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        pointer-events: auto;
     }
 
-    /* Нижняя панель плеера */
-    .player-interface { 
-      position: absolute; bottom: 0; width: 100%; height: 40px; 
-      background: rgba(0,0,0,0.6); z-index: 20; display: flex; align-items: center; 
-      padding: 0 10px; box-sizing: border-box; pointer-events: none;
+    /* =========================
+       PROGRESS BAR
+       ========================= */
+    .xh-progress-container {
+        flex-grow: 1;
+        height: 3px;
+        background: #444; 
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin: 0 5px;
+        cursor: pointer;
     }
-    
-    .progress-bg { 
-      position: absolute; top: -3px; left: 0; width: 100%; height: 3px; 
-      background: rgba(255,255,255,0.3); pointer-events: auto; cursor: pointer;
+    .xh-progress-filled {
+        width: 12%; 
+        height: 100%;
+        background: #ff2a00; 
+        position: relative;
     }
-    .xh-buffer-bar {
-      position: absolute; height: 100%; width: 0%; background: #e50914; z-index: 25;
-      display: none; transition: opacity 0.3s ease;
+    .xh-progress-filled.active {
+        animation: moveProgressLine 30s linear forwards;
     }
-    .xh-buffer-bar.active { display: block; animation: bufferFill 1.4s forwards steps(10); }
-    @keyframes bufferFill { 0% { width: 0%; } 40% { width: 45%; } 80% { width: 85%; } 100% { width: 100%; } }
-    
-    .progress-dot { position: absolute; right: -5px; top: -4px; width: 11px; height: 11px; background: #e50914; border-radius: 50%; z-index: 26; }
+    .xh-progress-filled::after {
+        content: "";
+        width: 14px;
+        height: 14px;
+        background: #ff2a00;
+        border-radius: 50%;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translate(50%, -50%);
+    }
+    @keyframes moveProgressLine {
+        from { width: 12%; }
+        to   { width: 35%; }
+    }
 
-    .xv-controls-left { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
-    .xv-controls-right { display: flex; align-items: center; gap: 12px; margin-left: auto; pointer-events: auto; }
-    
-    .player-time { color: #fff; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; }
-    
-    .player-icon { width: 20px; height: 20px; fill: #fff; cursor: pointer; filter: drop-shadow(1px 1px 2px #000); }
-    .player-icon.dim { fill: #888; }
+    /* =========================
+       ICONS & BUTTONS
+       ========================= */
+    .xh-icon { width: 30px; height: 30px; fill: #e6e6e6; cursor: pointer; }
+    .xh-pause-pill {
+        width: 38px;
+        height: 20px;
+        background: #222;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.8;
+        cursor: pointer;
+    }
+    .xh-pause-pill::before,
+    .xh-pause-pill::after {
+        content: ''; width: 3px; height: 10px; background: #777; margin: 0 2px; border-radius: 1px;
+    }
+
+    /* =========================
+       LOADER
+       ========================= */
+    .xh-loader {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,.5);
+        z-index: 5;
+    }
+    .xh-loader::after {
+        content: "";
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    /* =========================
+       UNMUTE BADGE
+       ========================= */
+    .xh-unmute-badge {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 50%;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        cursor: pointer;
+        animation: pulseUnmute 2s infinite;
+    }
+    .xh-mute-icon { width: 24px; height: 24px; fill: #fff; }
+    @keyframes pulseUnmute {
+        0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+        70%  { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    }
 
     /* ACTION BAR */
     .action-bar { 
@@ -275,12 +390,6 @@
         <svg class="xv-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
       </div>
     </div>
-    
-    <div class="xv-subnav" data-target="banner_main">
-      <span style="color:#e50914;"><span class="xv-red-badge">RED</span> Subscribe</span>
-      <span>Live Cams</span>
-      <span>Dating</span>
-    </div>
 
     <div class="xv-title-section" data-target="banner_main">
       <h1 class="xv-title">
@@ -290,41 +399,42 @@
       </h1>
       
       <div class="xv-tags-row">
-        <div class="tag-model">📺 Honey Trans <span>96k</span></div>
-        <div class="tag-model">☆ Elisa Sanches <span>807k</span></div>
+        <div class="tag-model">👤 Anonymous <span>96k</span></div>
+        <div class="tag-model">🎥 Hidden Cam <span>807k</span></div>
       </div>
       <div class="xv-tags-row">
-        <div class="tag-model orange">☆ Thaysa Lopes <span>12k</span></div>
-        <div class="tag-category">anal</div>
-        <div class="tag-category">milf</div>
-        <div class="tag-category">tranny</div>
+        <div class="tag-category">amateur</div>
+        <div class="tag-category">leaked</div>
+        <div class="tag-category">homemade</div>
+        <div class="tag-category">exclusive</div>
         <div class="tag-icon">✎</div>
         <div class="tag-icon"><b>+</b></div>
       </div>
     </div>
 
-    <div class="video-container" data-target="main_play">
+    <div class="xh-fake-player" data-target="main_play">
+      
+      <div class="xh-unmute-badge" data-target="mute_unmute">
+        <svg class="xh-mute-icon" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+      </div>
+
       <img class="xh-frame" id="frame" alt="" fetchpriority="high" decoding="async" />
       
-      <div class="xh-shimmer"></div> <div class="xh-main-play-trigger" data-target="main_play" aria-label="Play"></div>
+      <div class="xh-loader xh-shimmer"></div>
       
-      <div class="player-interface">
-        <div class="progress-bg" data-target="timeline">
-          <div class="xh-buffer-bar">
-             <div class="progress-dot"></div>
-          </div>
-        </div>
-        
-        <div class="xv-controls-left">
-          <svg class="player-icon" viewBox="0 0 24 24" data-target="mute_unmute"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-          <span class="player-time">00:00 / 13:08</span>
-        </div>
-        
-        <div class="xv-controls-right">
-          <svg class="player-icon dim" viewBox="0 0 24 24" data-target="play_pause"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-          <svg class="player-icon dim" viewBox="0 0 24 24" data-target="banner_main"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
-          <svg class="player-icon" viewBox="0 0 24 24" data-target="settings"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
-          <svg class="player-icon" viewBox="0 0 24 24" data-target="fullscreen"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
+      <div class="xh-play-btn xh-main-play-trigger" data-target="main_play" aria-label="Play">
+        <svg viewBox="0 0 100 100"><polygon points="35,25 75,50 35,75"/></svg>
+      </div>
+      
+      <div class="xh-bottom-bar" data-target="timeline">
+        <div class="xh-time">00:00 / 13:08</div>
+        <div class="xh-controls-row">
+           <div class="xh-pause-pill" data-target="play_pause"></div>
+           <div class="xh-progress-container">
+             <div class="xh-progress-filled xh-buffer-bar"></div>
+           </div>
+           <svg class="xh-icon" viewBox="0 0 24 24" data-target="settings"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+           <svg class="xh-icon" viewBox="0 0 24 24" data-target="fullscreen"><path d="M7 14H5v5h5v-2H7v-3zM14 5v2h3v3h2V5h-5z"/></svg>
         </div>
       </div>
     </div>
@@ -385,7 +495,7 @@
           <span class="thumb-badge-hd">1080p</span>
         </div>
         <div class="thumb-title dynamic-text">Loading...</div>
-        <div class="thumb-channel"><span>Honey Trans</span> 7.2k <div class="badge-time t-min">11 min</div></div>
+        <div class="thumb-channel"><span>Hidden Cam</span> 7.2k <div class="badge-time t-min">11 min</div></div>
       </div>
       
       <div class="related-item">
@@ -394,7 +504,7 @@
           <span class="thumb-badge-hd">1080p</span>
         </div>
         <div class="thumb-title dynamic-text">Loading...</div>
-        <div class="thumb-channel"><span>Sx Producer Films</span> 5.5M <div class="badge-time t-min">10 min</div></div>
+        <div class="thumb-channel"><span>Amateur Records</span> 5.5M <div class="badge-time t-min">10 min</div></div>
       </div>
       
       <div class="related-item">
@@ -403,7 +513,7 @@
           <span class="thumb-badge-hd">1080p</span>
         </div>
         <div class="thumb-title dynamic-text">Loading...</div>
-        <div class="thumb-channel"><span>Lorrany Exotica</span> 3.1M <div class="badge-time t-min">11 min</div></div>
+        <div class="thumb-channel"><span>Anonymous</span> 3.1M <div class="badge-time t-min">11 min</div></div>
       </div>
       
       <div class="related-item">
@@ -412,7 +522,7 @@
           <span class="thumb-badge-hd">1080p</span>
         </div>
         <div class="thumb-title dynamic-text">Loading...</div>
-        <div class="thumb-channel"><span>Honey Trans</span> 1.1M <div class="badge-time t-min">13 min</div></div>
+        <div class="thumb-channel"><span>Hidden Cam</span> 1.1M <div class="badge-time t-min">13 min</div></div>
       </div>
     </div>
   </div>
@@ -575,10 +685,10 @@
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       const dict = {
-        en: { title: "Elisa Sanches Wants Big Ebony Trans Cock In Her Ass", views: "3M", comments: "Comments", download: "Download", report: "Report", related: "Related videos", playlists: "Related playlists 467", min: "13 min", random: ["Big Ass Sexy Trans Ellen Yamaguchi Anal Play and..", "I had a huge desire to fuck Cleo Cadillac", "I CAME BACK FROM THE DANCE WANTING TO...", "Two Busty Trans Hotties Enjoy Erotic Massage and.."] },
-        ru: { title: "Элиза Санчес хочет большой черный член себе в зад", views: "3М", comments: "Комментарии", download: "Скачать", report: "Репорт", related: "Похожие видео", playlists: "Похожие плейлисты 467", min: "13 мин", random: ["Сексуальная Эллен Ямагучи с большой жопой и...", "У меня было огромное желание трахнуть Клео", "Я ВЕРНУЛАСЬ С ТАНЦЕВ С ЖЕЛАНИЕМ...", "Две грудастые красотки наслаждаются массажем..."] },
-        es: { title: "Elisa Sanches Quiere Una Gran Polla Trans En Su Culo", views: "3M", comments: "Comentarios", download: "Descargar", report: "Reportar", related: "Videos relacionados", playlists: "Listas relacionadas 467", min: "13 min", random: ["Culona Sexy Trans Ellen Yamaguchi Juego Anal y..", "Tenía un enorme deseo de follarme a Cleo", "VOLVÍ DEL BAILE CON GANAS DE...", "Dos bellezas trans pechugonas disfrutan de masaje.."] },
-        pt: { title: "Elisa Sanches Quer Uma Grande Rola Trans No Seu Cu", views: "3M", comments: "Comentários", download: "Baixar", report: "Denunciar", related: "Vídeos relacionados", playlists: "Listas relacionadas 467", min: "13 min", random: ["Rabuda Sexy Trans Ellen Yamaguchi Brincadeira Anal e..", "Eu tinha um desejo enorme de foder a Cleo", "VOLTEI DO BAILE COM VONTADE DE...", "Duas beldades trans peitudas curtem massagem.."] }
+        en: { title: "Exclusive leaked amateur video tape", views: "3M", comments: "Comments", download: "Download", report: "Report", related: "Related videos", playlists: "Related playlists", min: "13 min", random: ["Leaked homemade tape caught on camera", "Amateur hidden cam footage exposed", "Exclusive amateur clip from private archive", "Uncensored leaked video goes viral"] },
+        ru: { title: "Эксклюзивное слитое любительское видео", views: "3М", comments: "Комментарии", download: "Скачать", report: "Репорт", related: "Похожие видео", playlists: "Похожие плейлисты", min: "13 мин", random: ["Слитое домашнее видео со скрытой камеры", "Любительские кадры попали в сеть", "Эксклюзивный слив из личного архива", "Видео без цензуры стало вирусным"] },
+        es: { title: "Video amateur filtrado exclusivo", views: "3M", comments: "Comentarios", download: "Descargar", report: "Reportar", related: "Videos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Video casero filtrado en cámara oculta", "Imágenes amateur filtradas en internet", "Clip amateur exclusivo de archivo privado", "Video filtrado sin censura se vuelve viral"] },
+        pt: { title: "Vídeo amador vazado exclusivo", views: "3M", comments: "Comentários", download: "Baixar", report: "Denunciar", related: "Vídeos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Vídeo caseiro vazado na câmera escondida", "Imagens amadoras expostas na internet", "Clipe amador exclusivo de arquivo privado", "Vídeo vazado sem censura viraliza"] }
       };
 
       let userLang = (navigator.language || navigator.userLanguage).slice(0, 2).toLowerCase();
