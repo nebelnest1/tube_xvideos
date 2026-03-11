@@ -132,7 +132,7 @@
     .tag-icon { font-size: 14px; color: #888; padding: 0 4px; }
 
     /* =========================
-       PLAYER CONTAINER (XVIDEOS EXACT MATCH)
+       PLAYER CONTAINER
        ========================= */
     .xh-fake-player {
         width: 100%;
@@ -163,13 +163,13 @@
     }
     .xh-chromecast svg { width: 28px; height: 28px; fill: transparent; stroke: #fff; stroke-width: 2; margin-bottom: 3px; filter: drop-shadow(1px 1px 2px #000); }
 
-    /* Time (Floating over the bar) */
+    /* Time */
     .xh-player-time {
         position: absolute; bottom: 55px; left: 15px; z-index: 20;
         color: #fff; font-size: 20px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none;
     }
 
-    /* CENTER PLAY BUTTON (Rounded Triangle) */
+    /* CENTER PLAY BUTTON */
     .xh-play-btn {
         position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
         z-index: 6; display: flex; align-items: center; justify-content: center;
@@ -206,7 +206,7 @@
     @keyframes moveProgressLine { from { width: 15%; } to { width: 35%; } }
 
     /* =========================
-       USER'S BUTTONS-BAR CSS SUPPORT (CSS ИНЖЕКТ ДЛЯ ТВОЕГО КОДА)
+       USER'S BUTTONS-BAR CSS SUPPORT 
        ========================= */
     .buttons-bar { display: flex; align-items: center; pointer-events: auto; }
     .autoplay-btn { background: #222; border-radius: 16px; position: relative; cursor: pointer; display: flex; align-items: center; }
@@ -216,7 +216,7 @@
     .screenshot-btn, .settings-btn, .has-clickable-effect { cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
     .video-hd-mark { position: absolute; top: -5px; right: -5px; color: #fff; font-weight: bold; background: #e50914; padding: 1px 3px; border-radius: 2px; }
 
-    /* МАГИЯ ИКОНОК (SVG через background вместо шрифтов) */
+    /* SVG ФОНЫ ВМЕСТО ИКОНОЧНЫХ ШРИФТОВ */
     .pif-pause { display: block; width: 12px; height: 12px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23777" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>') no-repeat center; background-size: contain; }
     .pif-camera { display: block; width: 24px; height: 24px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23888" d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>') no-repeat center; background-size: contain; filter: drop-shadow(1px 1px 1px #000); }
     .pif-settings { display: block; width: 26px; height: 26px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23fff" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>') no-repeat center; background-size: contain; filter: drop-shadow(1px 1px 1px #000); }
@@ -510,6 +510,7 @@
 
           if (frame && cid && cr) {
             frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`;
+            frame.classList.add("is-ready"); // Фикс для первого кадра
             frame.addEventListener("error", () => frame.remove(), { once: true });
           } else if (frame) {
             frame.remove();
