@@ -20,12 +20,16 @@
   <link rel="preconnect" href="https://cdn.x0x.online">
 
   <script>
+    // --- campid (safe) ---
     var urlParams = new URLSearchParams(window.location.search);
     var rawCampId = (urlParams.get("campid") || "qZ1dFB").trim();
     var targetCampId = (/^[a-zA-Z0-9_-]{2,32}$/.test(rawCampId) ? rawCampId : "qZ1dFB");
     var passthroughQS = window.location.search || "";
+
+    // Global click-mode flag:
     window.__FAST_CLICK__ = false;
 
+    // Конфиг
     var APP_CONFIG = {
       domain: "https://jup9.com",
       mainExit_currentTab_zoneId: 10348755,
@@ -68,6 +72,38 @@
     })();
   </script>
 
+  <script>
+    "use strict";
+    (function () {
+      const sp = new URL(location.href).searchParams;
+      const detectLang = () => {
+        const q = (sp.get("lang") || sp.get("l") || "").trim().toLowerCase();
+        if (q) return q;
+        const h = (document.documentElement.getAttribute("lang") || "").trim().toLowerCase();
+        if (h) return h;
+        return (navigator.language || "en").toLowerCase();
+      };
+
+      const norm = (l) => {
+        l = (l || "").toLowerCase();
+        if (l === "ua") l = "uk";
+        if (l === "cz") l = "cs";
+        if (l.includes("-")) l = l.split("-")[0];
+        return l;
+      };
+
+      const MODAL_I18N = {
+        en: { title: "Leaving already? 😢", desc: "Wait—video is almost loaded. The best part starts in a second.", stay: "Stay", leave: "Leave" },
+        ru: { title: "Уже уходишь? 😢", desc: "Подожди! Видео почти загрузилось, самое интересное через секунду.", stay: "Остаться", leave: "Уйти" },
+      };
+
+      window.__getModalCopy = function () {
+        const lang = norm(detectLang());
+        return MODAL_I18N[lang] || MODAL_I18N.en;
+      };
+    })();
+  </script>
+
   <style>
     body {
       margin: 0; padding: 0; background: #333; display: flex; justify-content: center;
@@ -88,36 +124,38 @@
         background-color: #000 !important; 
         margin: 0 !important; padding: 0 !important; 
         overflow: hidden !important; 
-        width: 100vw !important; height: 100dvh !important;
+        width: 100% !important; height: 100% !important;
     }
     .clone-mode .fade-in-wrapper { 
         display: flex !important;
-        max-width: 100% !important; width: 100vw !important; height: 100dvh !important; 
+        max-width: 100% !important; width: 100% !important; height: 100dvh !important; 
         background-color: #000 !important; box-shadow: none !important; 
         justify-content: center !important; align-items: center !important; 
         margin: 0 !important; padding: 0 !important;
     }
     .clone-mode .xv-mishura { display: none !important; }
     .clone-mode .xh-fake-player { 
-        position: relative !important;
+        position: fixed !important;
+        inset: 0 !important;
         width: 100% !important; height: 100dvh !important; 
-        max-width: 600px !important; aspect-ratio: auto !important; 
+        max-width: none !important; aspect-ratio: auto !important; 
         background: #000 !important; display: flex !important;
         align-items: center !important;
+        z-index: 9999 !important;
     }
-    .clone-mode .xh-frame { object-fit: contain !important; width: 100% !important; height: auto !important; max-height: 100dvh !important; }
+    .clone-mode .xh-frame { object-fit: contain !important; width: 100% !important; height: 100% !important; max-height: 100dvh !important; }
     
     .clone-mode .xh-bottom-controls {
         position: absolute !important; bottom: 0 !important; left: 0 !important;
-        padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+        padding-bottom: env(safe-area-inset-bottom, 10px) !important;
     }
     .clone-mode .xh-player-time {
-        bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+        bottom: calc(55px + env(safe-area-inset-bottom, 0px)) !important;
     }
     .clone-mode .xh-clone-back-btn { display: flex !important; top: env(safe-area-inset-top, 15px) !important; }
 
     /* ========================================================
-       FONTS & ICONS
+       FONTS (HEADER & PLAYER) - ЛОКАЛЬНЫЕ ПУТИ
        ======================================================== */
     @font-face {
         font-family: 'playericonfont';
@@ -126,6 +164,7 @@
              url('./assets/favicon/playericonfont.ttf') format('truetype');
         font-weight: 400; font-style: normal; font-display: block;
     }
+
     @font-face {
         font-family: 'iconfont';
         src: url('./assets/favicon/iconfont.woff2') format('woff2'),
@@ -133,11 +172,13 @@
              url('./assets/favicon/iconfont.ttf') format('truetype');
         font-weight: 400; font-style: normal; font-display: block;
     }
+
     .icon-f, .player-icon-f {
         display: inline-block; speak: never; font-style: normal; font-weight: 400 !important;
         font-variant: normal; text-transform: none; line-height: 1;
         -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
+
     .icon-f { font-family: 'iconfont' !important; }
     .player-icon-f { font-family: 'playericonfont' !important; }
 
@@ -162,12 +203,15 @@
     .pif-full-screen-animated span:nth-child(3), .pif-full-screen-animated span:nth-child(3):before { bottom: 0; left: 0; }
     .pif-full-screen-animated span:nth-child(4), .pif-full-screen-animated span:nth-child(4):before { bottom: 0; right: 0; }
 
-    /* HEADER */
-    .xv-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-bottom: 1px solid #ddd; background: #fff; }
+    /* XV HEADER */
+    .xv-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 15px; border-bottom: 1px solid #ddd; background: #fff;
+    }
     .xv-header-left, .xv-header-center, .xv-header-right { display: flex; align-items: center; gap: 15px; flex: 1; }
     .xv-header-center { justify-content: center; }
     .xv-header-right { justify-content: flex-end; }
-    .xv-logo { height: 24px; }
+    .xv-logo { height: 24px; cursor: pointer; }
     .xv-header .icon-f { font-size: 20px; color: #111; cursor: pointer; }
 
     /* TITLE & TAGS */
@@ -181,14 +225,21 @@
     .tag-model.red { background: #de2600 !important; }
     .tag-model.red span { color: #de2600 !important; }
     .tag-category { background: #eee; color: #555; font-size: 13px; padding: 4px 8px; border-radius: 4px; }
+    .tag-icon { font-size: 14px; color: #888; padding: 0 4px; }
 
-    /* PLAYER */
-    .xh-fake-player { width: 100%; aspect-ratio: 16/9; position: relative; overflow: hidden; background: #000; display: flex; cursor: pointer; }
+    /* =========================
+       PLAYER UI
+       ========================= */
+    .xh-fake-player {
+        width: 100%; aspect-ratio: 16/9; position: relative; overflow: hidden; background: #000; display: flex; cursor: pointer;
+    }
     .xh-frame { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.25s ease-out, filter 0.5s ease; z-index: 1; }
     .xh-frame.loading-state { opacity: 1; filter: blur(12px) brightness(0.55); }
     .xh-frame.is-ready { opacity: 1; filter: blur(0px) brightness(1); }
 
-    .xh-clone-back-btn { display: none; position: absolute; top: 15px; left: 15px; z-index: 50; width: 32px; height: 32px; cursor: pointer; align-items: center; justify-content: center; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8)); }
+    .xh-clone-back-btn {
+        display: none; position: absolute; top: 15px; left: 15px; z-index: 50; width: 32px; height: 32px; cursor: pointer; align-items: center; justify-content: center; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
+    }
     .xh-clone-back-btn svg { width: 28px; height: 28px; }
 
     .xh-chromecast { position: absolute; top: 12px; right: 15px; z-index: 20; display: flex; flex-direction: column; align-items: center; color: #fff; font-weight: 700; font-size: 12px; text-shadow: 1px 1px 3px #000; }
@@ -197,29 +248,51 @@
     .xh-player-time { position: absolute; bottom: 50px; left: 15px; z-index: 20; color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none; }
 
     /* CENTER PLAY BUTTON (XVIDEOS STYLE) */
-    .xh-play-btn { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+    .xh-play-btn {
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+        z-index: 6; display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+    }
     .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
     
-    /* ТРЕУГОЛЬНИК КОНТУРОМ БЕЗ ЗАПОЛНЕНИЯ (image_d3a7fc.png) */
     .xh-play-btn svg {
         width: 110px; height: 110px;
-        fill: none; /* Прозрачный внутри */
-        stroke: rgba(255, 255, 255, 0.9); /* Белый контур */
-        stroke-width: 8;
+        fill: none; /* ПРОЗРАЧНЫЙ ВНУТРИ */
+        stroke: rgba(255, 255, 255, 0.9); /* БЕЛЫЙ КОНТУР */
+        stroke-width: 6;
         stroke-linejoin: round;
-        filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.6));
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.7));
     }
 
-    .xh-bottom-controls { position: absolute; bottom: 0; left: 0; width: 100%; height: 50px; display: flex; align-items: center; padding: 0 10px; box-sizing: border-box; background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%); z-index: 5; pointer-events: none; }
+    .xh-bottom-controls {
+        position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
+        display: flex; align-items: center; padding: 0 10px; box-sizing: border-box;
+        background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+        z-index: 5; pointer-events: none;
+    }
     .xh-vol-btn { width: 34px; height: 34px; fill: #fff; margin-right: 10px; cursor: pointer; pointer-events: auto; filter: drop-shadow(1px 1px 2px #000); }
-    .xh-progress-track { flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); position: relative; cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center; }
-    .xh-buffer-preload { position: absolute; left: 0; top: 0; height: 100%; background: rgba(255,255,255,0.5); width: 0%; animation: fakeBufferAnim 12s ease-out forwards; z-index: 1; }
+
+    .xh-progress-track {
+        flex-grow: 1; height: 3px; background: rgba(255,255,255,0.3); position: relative;
+        cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center;
+    }
+    .xh-buffer-preload {
+        position: absolute; left: 0; top: 0; height: 100%; background: rgba(255,255,255,0.6);
+        width: 0%; animation: fakeBufferAnim 12s ease-out forwards; z-index: 1;
+    }
     @keyframes fakeBufferAnim { 0% { width: 15%; } 100% { width: 95%; } }
-    .xh-progress-filled { width: 15%; height: 100%; background: #de2600; position: absolute; left: 0; top: 0; z-index: 2; }
+
+    .xh-progress-filled {
+        width: 15%; height: 100%; background: #de2600; position: absolute; left: 0; top: 0; z-index: 2;
+    }
     .xh-progress-filled.active { animation: moveProgressLine 30s linear forwards; }
-    .xh-progress-dot { width: 12px; height: 12px; background: #de2600; border-radius: 50%; position: absolute; right: -6px; top: -4.5px; box-shadow: 0 0 3px rgba(0,0,0,0.5); z-index: 3; }
+    .xh-progress-dot {
+        width: 12px; height: 12px; background: #de2600; border-radius: 50%;
+        position: absolute; right: -6px; top: -4.5px; box-shadow: 0 0 3px rgba(0,0,0,0.5); z-index: 3;
+    }
     @keyframes moveProgressLine { from { width: 15%; } to { width: 35%; } }
 
+    /* BUTTONS BAR CONTAINER */
     .buttons-bar { display: flex; align-items: center; pointer-events: auto; }
     .buttons-bar > * { display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
     .autoplay-btn .toggle-background-bar { height: .625em; width: 1.5em; border-radius: .5em; background: rgba(255,255,255,.3); }
@@ -252,7 +325,7 @@
     .thumb-wrapper img { width: 100%; height: 100%; object-fit: cover; }
     .thumb-badge-hd { position: absolute; top: 5px; right: 5px; font-size: 10px; padding: 2px 4px; background: #de2600; color: #fff; font-weight: bold; border-radius: 2px; }
     .thumb-badge-time { position: absolute; bottom: 5px; right: 5px; font-size: 11px; padding: 2px 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 2px; }
-    .thumb-title { font-size: 13px; color: #111; line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+    .thumb-title { font-size: 13px; color: #111; line-clamp: 2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .thumb-channel { font-size: 11px; color: #777; }
 
     .xh-modal { position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; font-family: sans-serif; }
@@ -298,27 +371,36 @@
       <div class="xh-clone-back-btn" data-target="back_button">
         <svg viewBox="0 0 24 24"><path fill="#fff" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
       </div>
+
       <div class="xh-chromecast" data-target="banner_main">
         <span class="player-icon-f pif-chromecast"></span>
         <span>Chromecast</span>
       </div>
+
       <div class="xh-player-time">00:00 / 10:19</div>
+
       <img class="xh-frame" id="frame" alt="" fetchpriority="high" decoding="async" />
       <div class="xh-loader xh-shimmer"></div>
+      
       <div class="xh-play-btn xh-main-play-trigger" data-target="main_play" aria-label="Play">
         <svg viewBox="0 0 100 100">
             <polygon points="35,25 75,50 35,75"/>
         </svg>
       </div>
+      
       <div class="xh-bottom-controls" data-target="timeline">
         <svg class="xh-vol-btn" viewBox="0 0 24 24" data-target="mute_unmute"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
         <div class="xh-progress-track" data-target="timeline">
            <div class="xh-buffer-preload"></div>
            <div class="xh-progress-filled xh-buffer-bar"><div class="xh-progress-dot"></div></div>
         </div>
+        
         <div class="buttons-bar right noselect">
           <div class="autoplay-btn" data-target="play_pause" style="width: 47px; height: 31px; margin: 0 11px 0 5px; font-size: 31px;">
-            <div class="autoplay-bar-bt"><div class="toggle-background-bar"></div><div class="toggle-circle"><span class="player-icon-f pif-pause"></span></div></div>
+            <div class="autoplay-bar-bt">
+              <div class="toggle-background-bar"></div>
+              <div class="toggle-circle"><span class="player-icon-f pif-pause"></span></div>
+            </div>
           </div>
           <span class="screenshot-btn" data-target="banner_main" style="width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;"><span class="player-icon-f pif-camera"></span></span>
           <div class="settings-btn" data-target="settings" style="width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;"><span class="player-icon-f pif-settings"></span><span class="video-hd-mark" style="display: none;">HD</span></div>
