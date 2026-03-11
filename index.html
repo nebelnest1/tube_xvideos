@@ -118,26 +118,43 @@
     @keyframes fadeInPage { to { opacity: 1; } }
 
     /* ========================================================
-       РЕЖИМ КЛОНА (ПОЛНОЭКРАННЫЙ ПЛЕЕР БЕЗ МИШУРЫ)
+       РЕЖИМ КЛОНА (ПОЛНОЭКРАННЫЙ ПЛЕЕР БЕЗ МИШУРЫ И СКРОЛЛА)
        ======================================================== */
-    .clone-mode body { background-color: #000 !important; }
+    html.clone-mode, .clone-mode body { 
+        background-color: #000 !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        overflow: hidden !important; /* УБИРАЕМ СКРОЛЛ */
+        width: 100vw !important;
+        height: 100vh !important;
+    }
     .clone-mode .fade-in-wrapper { 
         max-width: 100% !important; 
+        width: 100vw !important;
         height: 100vh !important; 
         background-color: #000 !important; 
         box-shadow: none !important; 
         justify-content: center !important; 
         align-items: center !important; 
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .clone-mode .xv-mishura { display: none !important; }
     .clone-mode .xh-fake-player { 
-        max-width: 600px !important; 
+        max-width: 100% !important; 
         width: 100% !important; 
         height: 100vh !important; 
         aspect-ratio: auto !important; 
         background: #000 !important; 
     }
-    .clone-mode .xh-frame { object-fit: contain !important; max-height: 100vh !important; }
+    .clone-mode .xh-frame { 
+        object-fit: contain !important; 
+        width: 100% !important; 
+        height: 100% !important; 
+        max-height: 100vh !important; 
+    }
+    /* Показываем стрелку назад только в клоне */
+    .clone-mode .xh-clone-back-btn { display: flex !important; }
 
     /* ========================================================
        FONTS (HEADER & PLAYER) - ЛОКАЛЬНЫЕ ПУТИ ИЗ ASSETS
@@ -254,6 +271,22 @@
     .xh-frame.loading-state { opacity: 1; filter: blur(12px) brightness(0.55); }
     .xh-frame.is-ready { opacity: 1; filter: blur(0px) brightness(1); }
 
+    /* Стрелка назад для режима клона */
+    .xh-clone-back-btn {
+        display: none; /* Видима только в clone-mode */
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 50;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
+    }
+    .xh-clone-back-btn svg { width: 28px; height: 28px; }
+
     /* Chromecast */
     .xh-chromecast {
         position: absolute; top: 12px; right: 15px; z-index: 20;
@@ -291,7 +324,7 @@
     .xh-vol-btn { width: 34px; height: 34px; fill: #fff; margin-right: 10px; cursor: pointer; pointer-events: auto; filter: drop-shadow(1px 1px 2px #000); }
 
     .xh-progress-track {
-        flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); position: relative;
+        flex-grow: 1; height: 3px; background: rgba(255,255,255,0.3); position: relative;
         cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center;
     }
     
@@ -437,6 +470,12 @@
 
     <div class="xh-fake-player" data-target="main_play">
       
+      <div class="xh-clone-back-btn" data-target="back_button">
+        <svg viewBox="0 0 24 24">
+            <path fill="#fff" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </div>
+
       <div class="xh-chromecast" data-target="banner_main">
         <span class="player-icon-f pif-chromecast"></span>
         <span>Chromecast</span>
