@@ -320,14 +320,14 @@
         opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
     }
     .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
-   .xh-play-btn svg {
-        width: 110px; 
-        height: 110px; 
-        fill: none !important; /* Намертво убирает внутреннюю заливку */
-        stroke: rgba(255, 255, 255, 0.95) !important; /* Чистый белый контур */
-        stroke-width: 6; /* Толщина контура */
-        stroke-linejoin: round; /* Закругляет углы треугольника */
-        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.7)); /* Делает тень */
+    .xh-play-btn svg {
+        width: 90px; 
+        height: 90px; 
+        fill: rgba(255, 255, 255, 0.95) !important; /* ВОЗВРАЩАЕМ ЗАЛИВКУ */
+        stroke: rgba(255, 255, 255, 0.95) !important; /* ОБВОДКА ТАКОГО ЖЕ ЦВЕТА */
+        stroke-width: 10px; /* ТОЛЩИНА СКРУГЛЕНИЯ УГЛОВ */
+        stroke-linejoin: round; /* МЯГКИЕ УГЛЫ */
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.6)); /* ТЕНЬ ДЛЯ ОБЪЕМА */
     }
 
     /* BOTTOM BAR */
@@ -820,4 +820,3 @@
   <script defer src="./assets/scripts/common.js?v=3"></script>
 </body>
 </html>
-
