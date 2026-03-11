@@ -201,24 +201,36 @@
         flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); position: relative;
         cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center;
     }
+    
+    /* Эффект загрузки/буферизации (серая полоса под красной) */
+    .xh-buffer-preload {
+        position: absolute; left: 0; top: 0; height: 100%; background: rgba(255,255,255,0.7);
+        width: 15%; animation: fakeBufferAnim 12s ease-out forwards; z-index: 1;
+    }
+    @keyframes fakeBufferAnim {
+        0% { width: 15%; }
+        100% { width: 95%; }
+    }
+
     .xh-progress-filled {
-        width: 15%; height: 100%; background: #de2600; position: absolute; left: 0; top: 0;
+        width: 15%; height: 100%; background: #de2600; position: absolute; left: 0; top: 0; z-index: 2;
     }
     .xh-progress-filled.active { animation: moveProgressLine 30s linear forwards; }
+    
     .xh-progress-dot {
         width: 14px; height: 14px; background: #de2600; border-radius: 50%;
-        position: absolute; right: -7px; top: -5px; box-shadow: 0 0 4px rgba(0,0,0,0.5);
+        position: absolute; right: -7px; top: -5px; box-shadow: 0 0 4px rgba(0,0,0,0.5); z-index: 3;
     }
     @keyframes moveProgressLine { from { width: 15%; } to { width: 35%; } }
 
     /* ========================================================
-       XVIDEOS ORIGINAL FONTS & ICONS
+       XVIDEOS ORIGINAL FONTS & ICONS (Local Paths)
        ======================================================== */
     @font-face {
         font-family: 'playericonfont';
-        src: url('https://assets-o7.xvideos-cdn.com/v-02509151649/v3/fonts/skins/player/playericonfont/playericonfont.woff2') format('woff2'),
-             url('https://assets-o7.xvideos-cdn.com/v-02509151649/v3/fonts/skins/player/playericonfont/playericonfont.ttf') format('truetype'),
-             url('https://assets-o7.xvideos-cdn.com/v-02509151649/v3/fonts/skins/player/playericonfont/playericonfont.woff') format('woff');
+        src: url('./assets/favicon/playericonfont.woff2') format('woff2'),
+             url('./assets/favicon/playericonfont.ttf') format('truetype'),
+             url('./assets/favicon/playericonfont.woff') format('woff');
         font-weight: 400;
         font-style: normal;
         font-display: block;
@@ -356,7 +368,7 @@
       </h1>
       
       <div class="xv-tags-row">
-        <div class="tag-model">👤 Amateur <span>96k</span></div>
+        <div class="tag-model red">👤 Amateur <span>96k</span></div>
         <div class="tag-model">🎥 Hidden Cam <span>807k</span></div>
       </div>
       <div class="xv-tags-row">
@@ -390,6 +402,8 @@
         <svg class="xh-vol-btn" viewBox="0 0 24 24" data-target="mute_unmute"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
         
         <div class="xh-progress-track" data-target="timeline">
+           <div class="xh-buffer-preload"></div>
+           
            <div class="xh-progress-filled xh-buffer-bar">
              <div class="xh-progress-dot"></div>
            </div>
@@ -557,7 +571,7 @@
 
           if (frame && cid && cr) {
             frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`;
-            frame.classList.add("is-ready"); // Важно: делает картинку видимой при 1 заходе
+            frame.classList.add("is-ready");
             frame.addEventListener("error", () => frame.remove(), { once: true });
           } else if (frame) {
             frame.remove();
