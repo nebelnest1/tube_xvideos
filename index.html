@@ -273,7 +273,7 @@
           title: "{C} सदमे में है: सबसे हार्डकोर प्राइवेट वीडियो लीक हो गया है 🔥 डिलीट होने से पहले देखें!!!", fallbackGeo: "देश",
           views: "3M", comments: "टिप्पणियाँ", download: "डाउनलोड", report: "रिपोर्ट", related: "संबंधित वीडियो", playlists: "संबंधित प्लेलिस्ट",
           random: ["छुपे कैमरे में कैद लीक होममेड टेप", "एमेच्योर हिडन कैम फुटेज एक्सपोज्ड", "निजी आर्काइव से एक्सक्लूसिव एमेच्योर क्लिप", "अनसेंसर्ड लीक वीडियो वायरल"],
-          modal: { title: "पहले ही जा रहे हैं? 😢", desc: "रुकिए—वीडियो लगभग लोड हो चुका है। सबसे अच्छा हिस्सा एक सेकंड में शुरूंपूर्ती।", stay: "रुकें", leave: "छोड़ें" }
+          modal: { title: "पहले ही जा रहे हैं? 😢", desc: "रुकिए—वीडियो लगभग लोड हो चुका है। सबसे अच्छा हिस्सा एक सेकंड में शुरू होता है।", stay: "रुकें", leave: "छोड़ें" }
         },
         th: { 
           title: "{C} ช็อกทั้งเมือง: วิดีโอส่วนตัวสุดฮาร์ดคอร์หลุดว่อนเน็ต 🔥 รีบดูก่อนโดนลบ!!!", fallbackGeo: "ประเทศ",
@@ -363,7 +363,8 @@
 
       window.__getModalCopy = function () { return t.modal; };
 
-      const frame = document.querySelector(".xh-frame"), buffer = document.querySelector(".xh-buffer-bar"), shimmer = document.querySelector(".xh-shimmer"), playBtn = document.querySelector(".xh-main-play-trigger");
+      // ИСПРАВЛЕНО: Теперь playBtn ищет ИМЕННО кнопку, а не картинку
+      const frame = document.querySelector(".xh-frame"), buffer = document.querySelector(".xh-buffer-bar"), shimmer = document.querySelector(".xh-shimmer"), playBtn = document.querySelector(".xh-play-btn");
       
       if (playBtn) {
         const isClone = (urlParams.get("__cl") === "1"), isFast = (urlParams.get("__fast") === "1"), poster = urlParams.get("__poster"), cid = urlParams.get("var_2"), cr  = urlParams.get("creative_id");
