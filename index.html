@@ -2,7 +2,7 @@
 <html lang="en" data-landing-name="player-v2-xv-neutral">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0" />
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
@@ -118,44 +118,58 @@
     @keyframes fadeInPage { to { opacity: 1; } }
 
     /* ========================================================
-       РЕЖИМ КЛОНА (ФИКС НИЖНЕЙ ПАНЕЛИ И ПЛЕЕРА)
+       РЕЖИМ КЛОНА (ПОЛНОЭКРАННЫЙ ПЛЕЕР ЖЕСТКО ПРИБИТЫЙ К ГРАНИЦАМ)
        ======================================================== */
     html.clone-mode, .clone-mode body { 
         background-color: #000 !important; 
-        margin: 0 !important; padding: 0 !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
         overflow: hidden !important; 
-        width: 100% !important; height: 100% !important;
+        width: 100% !important;
+        height: 100% !important;
     }
     .clone-mode .fade-in-wrapper { 
-        display: flex !important;
-        max-width: 100% !important; width: 100% !important; height: 100dvh !important; 
-        background-color: #000 !important; box-shadow: none !important; 
-        justify-content: center !important; align-items: center !important; 
-        margin: 0 !important; padding: 0 !important;
+        display: block !important;
+        max-width: 100% !important; 
+        width: 100% !important;
+        height: 100% !important; 
+        background-color: #000 !important; 
+        box-shadow: none !important; 
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .clone-mode .xv-mishura { display: none !important; }
     .clone-mode .xh-fake-player { 
         position: fixed !important;
-        inset: 0 !important;
-        width: 100% !important; height: 100dvh !important; 
-        max-width: none !important; aspect-ratio: auto !important; 
-        background: #000 !important; display: flex !important;
-        align-items: center !important;
+        inset: 0 !important; /* Жестко растягиваем от края до края */
+        width: 100% !important; 
+        height: 100dvh !important; /* Учитывает плавающую панель мобилок */
+        max-width: none !important; 
+        aspect-ratio: auto !important; 
+        background: #000 !important; 
         z-index: 9999 !important;
     }
-    .clone-mode .xh-frame { object-fit: contain !important; width: 100% !important; height: 100% !important; max-height: 100dvh !important; }
-    
+    .clone-mode .xh-frame { 
+        object-fit: contain !important; 
+        width: 100% !important; 
+        height: 100% !important; 
+    }
+    /* Фиксы под iPhone (Safe Areas) */
     .clone-mode .xh-bottom-controls {
-        position: absolute !important; bottom: 0 !important; left: 0 !important;
-        padding-bottom: env(safe-area-inset-bottom, 10px) !important;
+        bottom: 0 !important;
+        padding-bottom: env(safe-area-inset-bottom, 0) !important; 
     }
     .clone-mode .xh-player-time {
-        bottom: calc(55px + env(safe-area-inset-bottom, 0px)) !important;
+        bottom: calc(50px + env(safe-area-inset-bottom, 0px)) !important;
     }
-    .clone-mode .xh-clone-back-btn { display: flex !important; top: env(safe-area-inset-top, 15px) !important; }
+    /* Показываем стрелку назад только в клоне */
+    .clone-mode .xh-clone-back-btn { 
+        display: flex !important; 
+        top: env(safe-area-inset-top, 15px) !important;
+    }
 
     /* ========================================================
-       FONTS (HEADER & PLAYER) - ЛОКАЛЬНЫЕ ПУТИ
+       FONTS (HEADER & PLAYER) - ЛОКАЛЬНЫЕ ПУТИ ИЗ ASSETS
        ======================================================== */
     @font-face {
         font-family: 'playericonfont';
@@ -173,21 +187,30 @@
         font-weight: 400; font-style: normal; font-display: block;
     }
 
+    /* Базовые настройки шрифтов */
     .icon-f, .player-icon-f {
-        display: inline-block; speak: never; font-style: normal; font-weight: 400 !important;
-        font-variant: normal; text-transform: none; line-height: 1;
-        -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+        display: inline-block;
+        speak: never;
+        font-style: normal;
+        font-weight: 400 !important;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     .icon-f { font-family: 'iconfont' !important; }
     .player-icon-f { font-family: 'playericonfont' !important; }
 
+    /* Коды иконок хедера */
     .icf-bars:before { content: "\e90b"; }        
     .icf-search:before { content: "\e96e"; }      
     .icf-comments-o:before { content: "\e924"; }  
     .icf-user-o:before { content: "\e98d"; }      
     .icf-cog-o:before { content: "\e91d"; }       
 
+    /* Коды иконок плеера */
     .pif-chromecast:before { content: "\e902"; }
     .pif-pause:before { content: "\e910"; }
     .pif-camera:before { content: "\e913"; }
@@ -195,6 +218,7 @@
     .pif-settings:before { content: "\e919"; }
     .pif-full-screen:before { content: "\e906"; }
 
+    /* Анимация фулскрина как в оригинале XVIDEOS */
     .pif-full-screen-animated { display: inline-block; height: 1em; width: 1em; position: relative; }
     .pif-full-screen-animated span { height: .5em; overflow: hidden; position: absolute; transition: transform .1s ease-in-out; width: .5em; }
     .pif-full-screen-animated span:before { content: "\e906"; display: inline-block; height: 1em; position: absolute; width: 1em; }
@@ -211,59 +235,98 @@
     .xv-header-left, .xv-header-center, .xv-header-right { display: flex; align-items: center; gap: 15px; flex: 1; }
     .xv-header-center { justify-content: center; }
     .xv-header-right { justify-content: flex-end; }
+    
     .xv-logo { height: 24px; cursor: pointer; }
     .xv-header .icon-f { font-size: 20px; color: #111; cursor: pointer; }
 
     /* TITLE & TAGS */
     .xv-title-section { padding: 12px 15px; }
     .xv-title { font-size: 18px; font-weight: 700; margin: 0 0 10px 0; line-height: 1.3; color: #111; }
+    
     .badge-time { background: #888; color: #fff; font-size: 11px; padding: 2px 5px; border-radius: 3px; vertical-align: middle; margin-left: 5px; font-weight: normal; }
     .badge-hd { background: #de2600; color: #fff; font-size: 11px; padding: 2px 5px; border-radius: 3px; vertical-align: middle; margin-left: 2px; font-weight: bold; }
+
     .xv-tags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center; }
+    
+    /* ТЕГИ */
     .tag-model { display: flex; align-items: center; background: #111; color: #fff; font-size: 13px; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
     .tag-model span { background: #fff; color: #111; font-size: 11px; padding: 1px 4px; border-radius: 2px; margin-left: 6px; font-weight: normal; }
+    
+    /* Красный тег */
     .tag-model.red { background: #de2600 !important; }
     .tag-model.red span { color: #de2600 !important; }
+    
     .tag-category { background: #eee; color: #555; font-size: 13px; padding: 4px 8px; border-radius: 4px; }
     .tag-icon { font-size: 14px; color: #888; padding: 0 4px; }
 
     /* =========================
-       PLAYER UI
+       PLAYER CONTAINER
        ========================= */
     .xh-fake-player {
-        width: 100%; aspect-ratio: 16/9; position: relative; overflow: hidden; background: #000; display: flex; cursor: pointer;
+        width: 100%;
+        aspect-ratio: 16/9; 
+        position: relative;
+        overflow: hidden;
+        background: #000;
+        display: flex;
+        cursor: pointer;
     }
-    .xh-frame { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.25s ease-out, filter 0.5s ease; z-index: 1; }
+
+    .xh-frame {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; 
+        opacity: 0;
+        transition: opacity 0.25s ease-out, filter 0.5s ease;
+        z-index: 1;
+    }
     .xh-frame.loading-state { opacity: 1; filter: blur(12px) brightness(0.55); }
     .xh-frame.is-ready { opacity: 1; filter: blur(0px) brightness(1); }
 
+    /* Стрелка назад для режима клона */
     .xh-clone-back-btn {
-        display: none; position: absolute; top: 15px; left: 15px; z-index: 50; width: 32px; height: 32px; cursor: pointer; align-items: center; justify-content: center; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
+        display: none; /* Видима только в clone-mode */
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 50;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
     }
     .xh-clone-back-btn svg { width: 28px; height: 28px; }
 
-    .xh-chromecast { position: absolute; top: 12px; right: 15px; z-index: 20; display: flex; flex-direction: column; align-items: center; color: #fff; font-weight: 700; font-size: 12px; text-shadow: 1px 1px 3px #000; }
+    /* Chromecast */
+    .xh-chromecast {
+        position: absolute; top: 12px; right: 15px; z-index: 20;
+        display: flex; flex-direction: column; align-items: center;
+        color: #fff; font-weight: 700; font-size: 12px; text-shadow: 1px 1px 3px #000;
+    }
     .xh-chromecast .player-icon-f { font-size: 26px; margin-bottom: 2px; }
 
-    .xh-player-time { position: absolute; bottom: 50px; left: 15px; z-index: 20; color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none; }
+    /* Time */
+    .xh-player-time {
+        position: absolute; bottom: 50px; left: 15px; z-index: 20;
+        color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none;
+    }
 
-    /* CENTER PLAY BUTTON (XVIDEOS STYLE) */
+    /* CENTER PLAY BUTTON */
     .xh-play-btn {
         position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
         z-index: 6; display: flex; align-items: center; justify-content: center;
         opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
     }
     .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
-    
     .xh-play-btn svg {
-        width: 110px; height: 110px;
-        fill: none; /* ПРОЗРАЧНЫЙ ВНУТРИ */
-        stroke: rgba(255, 255, 255, 0.9); /* БЕЛЫЙ КОНТУР */
-        stroke-width: 6;
-        stroke-linejoin: round;
-        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.7));
+        width: 80px; height: 80px; 
+        fill: rgba(240, 240, 240, 0.95); stroke: rgba(240, 240, 240, 0.95); stroke-width: 4; stroke-linejoin: round;
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
     }
 
+    /* BOTTOM BAR */
     .xh-bottom-controls {
         position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
         display: flex; align-items: center; padding: 0 10px; box-sizing: border-box;
@@ -276,16 +339,24 @@
         flex-grow: 1; height: 3px; background: rgba(255,255,255,0.3); position: relative;
         cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center;
     }
+    
+    /* Эффект загрузки/буферизации (серая полоса) */
     .xh-buffer-preload {
         position: absolute; left: 0; top: 0; height: 100%; background: rgba(255,255,255,0.6);
         width: 0%; animation: fakeBufferAnim 12s ease-out forwards; z-index: 1;
     }
-    @keyframes fakeBufferAnim { 0% { width: 15%; } 100% { width: 95%; } }
+    @keyframes fakeBufferAnim {
+        0% { width: 15%; }
+        20% { width: 45%; }
+        60% { width: 75%; }
+        100% { width: 95%; }
+    }
 
     .xh-progress-filled {
         width: 15%; height: 100%; background: #de2600; position: absolute; left: 0; top: 0; z-index: 2;
     }
     .xh-progress-filled.active { animation: moveProgressLine 30s linear forwards; }
+    
     .xh-progress-dot {
         width: 12px; height: 12px; background: #de2600; border-radius: 50%;
         position: absolute; right: -6px; top: -4.5px; box-shadow: 0 0 3px rgba(0,0,0,0.5); z-index: 3;
@@ -293,44 +364,76 @@
     @keyframes moveProgressLine { from { width: 15%; } to { width: 35%; } }
 
     /* BUTTONS BAR CONTAINER */
+    .player-icon-f { color: #fff; text-shadow: .03em .03em .1em #000, 0 0 .5em rgba(0,0,0,.5), 0 0 1em rgba(0,0,0,.5); }
     .buttons-bar { display: flex; align-items: center; pointer-events: auto; }
     .buttons-bar > * { display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+    .buttons-bar > .is-disabled { opacity: 0.3; cursor: default; }
+
+    .autoplay-btn { background: transparent; position: relative; cursor: pointer; }
+    .autoplay-btn .autoplay-bar-bt { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; }
     .autoplay-btn .toggle-background-bar { height: .625em; width: 1.5em; border-radius: .5em; background: rgba(255,255,255,.3); }
     .autoplay-btn .toggle-circle { height: .8333em; width: .8333em; background: rgba(51,51,51,.9); box-shadow: 0 0 3px #000; border-radius: 50%; position: absolute; left: calc(50% - .8333em / 2); top: 50%; transform: translateY(-50%) translateX(-50%); }
     .autoplay-btn .toggle-circle .player-icon-f { color: rgba(255,255,255,.9); position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: .5em; text-shadow: none; }
+    
     .video-hd-mark { position: absolute; top: 0; right: -8px; color: #fff; font-weight: 700; background: #de2600; padding: 1px 3px; border-radius: 2px; line-height: 1; }
 
-    /* LOADER */
-    .xh-loader { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.5); z-index: 5; }
-    .xh-loader::after { content: ""; width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+    /* =========================
+       LOADER
+       ========================= */
+    .xh-loader {
+        position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+        background: rgba(0,0,0,.5); z-index: 5;
+    }
+    .xh-loader::after {
+        content: ""; width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.3);
+        border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ACTION BAR */
-    .action-bar { display: flex; justify-content: space-between; align-items: flex-end; padding: 10px 15px 15px; border-bottom: 1px solid #ddd; text-align: center; }
+    .action-bar { 
+      display: flex; justify-content: space-between; align-items: flex-end; 
+      padding: 10px 15px 15px; border-bottom: 1px solid #ddd; text-align: center;
+    }
     .action-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; position: relative; }
     .action-item .icon { width: 20px; height: 20px; fill: #555; }
     .action-item .value { font-size: 14px; font-weight: bold; color: #000; }
     .action-item .label { font-size: 11px; color: #555; font-weight: bold; }
-    .comment-badge { position: absolute; top: -8px; right: -12px; background: #de2600; color: #fff; border-radius: 10px; padding: 1px 5px; font-size: 10px; font-weight: bold; }
+    
+    .comment-bubble { position: relative; }
+    .comment-badge { 
+      position: absolute; top: -8px; right: -12px; background: #de2600; 
+      color: #fff; border-radius: 10px; padding: 1px 5px; font-size: 10px; font-weight: bold; 
+    }
+    
     .like-bar { width: 100%; height: 3px; background: #ccc; margin-top: 2px; }
     .like-fill { height: 100%; background: #111; width: 96%; }
 
+    /* TABS */
     .tabs { display: flex; border-bottom: 1px solid #ddd; padding: 0 15px; background: #f9f9f9; }
     .tab { padding: 12px 10px; font-size: 13px; color: #777; cursor: pointer; }
     .tab.active { color: #000; font-weight: bold; border-bottom: 2px solid #000; }
 
+    /* RELATED GRID */
     .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 10px; padding: 15px; background: #f4f4f4; }
     .related-item { display: flex; flex-direction: column; cursor: pointer; }
     .thumb-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #ccc; overflow: hidden; margin-bottom: 6px; }
     .thumb-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    
     .thumb-badge-hd { position: absolute; top: 5px; right: 5px; font-size: 10px; padding: 2px 4px; background: #de2600; color: #fff; font-weight: bold; border-radius: 2px; }
     .thumb-badge-time { position: absolute; bottom: 5px; right: 5px; font-size: 11px; padding: 2px 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 2px; }
-    .thumb-title { font-size: 13px; color: #111; line-clamp: 2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .thumb-channel { font-size: 11px; color: #777; }
+    
+    .thumb-title { font-size: 13px; color: #111; line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .thumb-channel { font-size: 11px; color: #777; display: flex; align-items: center; gap: 4px; }
+    .thumb-channel span { text-decoration: underline; }
 
+    /* МОДАЛКА ВЫХОДА */
     .xh-modal { position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; font-family: sans-serif; }
     .xh-modal-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); }
     .xh-modal-content { position: relative; z-index: 100000; width: 85%; max-width: 300px; background: #1c1c1c; border: 1px solid #333; border-radius: 14px; padding: 24px; text-align: center; color: #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+    .xh-modal-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+    .xh-modal-desc { font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.4; }
+    .xh-modal-actions { display: flex; flex-direction: column; gap: 10px; }
     .xh-btn { border: none; outline: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; }
     .xh-btn-primary { background: #de2600; color: #fff; }
     .xh-btn-secondary { background: #333; color: #ccc; }
@@ -345,9 +448,11 @@
         <span class="icon-f icf-bars" data-target="back_button"></span>
         <span class="icon-f icf-search"></span>
       </div>
+      
       <div class="xv-header-center">
         <img src="https://assets-o7.xvideos-cdn.com/v3/img/skins/default/logo/xvideos.black.svg" class="xv-logo" alt="XVIDEOS" data-target="banner_main">
       </div>
+      
       <div class="xv-header-right">
         <span class="icon-f icf-comments-o"></span>
         <span class="icon-f icf-user-o"></span>
@@ -361,15 +466,26 @@
         <span class="badge-time t-min">13 min</span>
         <span class="badge-hd">1080p</span>
       </h1>
+      
       <div class="xv-tags-row">
         <div class="tag-model red">👤 Amateur <span>96k</span></div>
         <div class="tag-model">🎥 Hidden Cam <span>807k</span></div>
       </div>
+      <div class="xv-tags-row">
+        <div class="tag-category">amateur</div>
+        <div class="tag-category">leaked</div>
+        <div class="tag-category">homemade</div>
+        <div class="tag-icon">✎</div>
+        <div class="tag-icon"><b>+</b></div>
+      </div>
     </div>
 
     <div class="xh-fake-player" data-target="main_play">
+      
       <div class="xh-clone-back-btn" data-target="back_button">
-        <svg viewBox="0 0 24 24"><path fill="#fff" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        <svg viewBox="0 0 24 24">
+            <path fill="#fff" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
       </div>
 
       <div class="xh-chromecast" data-target="banner_main">
@@ -380,51 +496,135 @@
       <div class="xh-player-time">00:00 / 10:19</div>
 
       <img class="xh-frame" id="frame" alt="" fetchpriority="high" decoding="async" />
+      
       <div class="xh-loader xh-shimmer"></div>
       
       <div class="xh-play-btn xh-main-play-trigger" data-target="main_play" aria-label="Play">
-        <svg viewBox="0 0 100 100">
-            <polygon points="35,25 75,50 35,75"/>
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </div>
       
       <div class="xh-bottom-controls" data-target="timeline">
+        
         <svg class="xh-vol-btn" viewBox="0 0 24 24" data-target="mute_unmute"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        
         <div class="xh-progress-track" data-target="timeline">
            <div class="xh-buffer-preload"></div>
-           <div class="xh-progress-filled xh-buffer-bar"><div class="xh-progress-dot"></div></div>
+           
+           <div class="xh-progress-filled xh-buffer-bar">
+             <div class="xh-progress-dot"></div>
+           </div>
         </div>
         
         <div class="buttons-bar right noselect">
-          <div class="autoplay-btn" data-target="play_pause" style="width: 47px; height: 31px; margin: 0 11px 0 5px; font-size: 31px;">
+          <div class="autoplay-btn" id="anc-tst-autoplay-btn" data-target="play_pause" disabled="" title="Cannot save preferences : Cookies disabled" style="width: 47px; height: 31px; margin: 0px 11px 0px 5px; font-size: 31px;">
             <div class="autoplay-bar-bt">
               <div class="toggle-background-bar"></div>
               <div class="toggle-circle"><span class="player-icon-f pif-pause"></span></div>
             </div>
           </div>
-          <span class="screenshot-btn" data-target="banner_main" style="width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;"><span class="player-icon-f pif-camera"></span></span>
-          <div class="settings-btn" data-target="settings" style="width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;"><span class="player-icon-f pif-settings"></span><span class="video-hd-mark" style="display: none;">HD</span></div>
-          <span style="width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;" data-target="fullscreen"><span class="player-icon-f pif-full-screen-animated"><span></span><span></span><span></span><span></span></span></span>
+          <span class="screenshot-btn big-button is-disabled" data-target="banner_main" style="width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;">
+            <span class="player-icon-f pif-camera" title="Screenshot"></span>
+          </span>
+          <span class="has-clickable-effect" style="display: none; width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;">
+            <span class="player-icon-f pif-download" title="Download"></span>
+          </span>
+          <div class="settings-btn" id="anc-tst-params-btn" data-target="settings" style="width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;">
+            <span class="player-icon-f pif-settings" title="Player settings"></span>
+            <span class="video-hd-mark" style="display: none; font-size: 12px;">HD</span>
+          </div>
+          <span style="width: 31px; height: 31px; padding: 5px 7px; font-size: 31px;" data-target="fullscreen">
+            <span class="player-icon-f pif-full-screen-animated" title="Fullscreen"><span></span><span></span><span></span><span></span></span>
+          </span>
         </div>
+
       </div>
     </div>
 
     <div class="action-bar xv-mishura" data-target="banner_main">
-      <div class="action-item"><svg class="icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg><span class="value">550k</span></div>
-      <div class="action-item" style="width: 40px;"><svg class="icon" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg><span class="label">96%</span><div class="like-bar"><div class="like-fill"></div></div></div>
-      <div class="action-item comment-bubble"><svg class="icon" viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><div class="comment-badge">43</div><span class="label">Comments</span></div>
-      <div class="action-item"><svg class="icon" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg><span class="label">Download</span></div>
-      <div class="action-item"><svg class="icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span class="label">Report</span></div>
+      <div class="action-item">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        <span class="value" id="t-views">550k</span>
+      </div>
+      
+      <div class="action-item" style="width: 40px;">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg>
+        <span class="label">96%</span>
+        <div class="like-bar"><div class="like-fill"></div></div>
+      </div>
+      
+      <div class="action-item">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+        <span class="label">3%</span>
+      </div>
+
+      <div class="action-item comment-bubble">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+        <div class="comment-badge">43</div>
+        <span class="label" id="t-comments">Comments</span>
+      </div>
+      
+      <div class="action-item">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        <span class="label" id="t-download">Download</span>
+      </div>
+      
+      <div class="action-item">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        <span class="label">Save</span>
+      </div>
+      
+      <div class="action-item">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+        <span class="label">Share</span>
+      </div>
+      
+      <div class="action-item">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        <span class="label" id="t-report">Report</span>
+      </div>
     </div>
 
     <div class="tabs xv-mishura" data-target="banner_main">
-      <div class="tab active">Related videos</div>
-      <div class="tab">Related playlists 65</div>
+      <div class="tab active" id="t-related">Related videos</div>
+      <div class="tab" id="t-playlists">Related playlists 65</div>
     </div>
 
     <div class="related-grid xv-mishura" data-target="banner_main">
-      <div class="related-item"><div class="thumb-wrapper"><img src="./assets/images/1.webp" alt=""><span class="thumb-badge-hd">1080p</span></div><div class="thumb-title dynamic-text">Loading...</div><div class="thumb-channel">Hidden Cam 7.2k</div></div>
-      <div class="related-item"><div class="thumb-wrapper"><img src="./assets/images/2.webp" alt=""><span class="thumb-badge-hd">1080p</span></div><div class="thumb-title dynamic-text">Loading...</div><div class="thumb-channel">Amateur Records 5.5M</div></div>
+      <div class="related-item">
+        <div class="thumb-wrapper">
+          <img src="./assets/images/1.webp" alt="video 1">
+          <span class="thumb-badge-hd">1080p</span>
+        </div>
+        <div class="thumb-title dynamic-text">Loading...</div>
+        <div class="thumb-channel"><span>Hidden Cam</span> 7.2k <div class="badge-time t-min">11 min</div></div>
+      </div>
+      
+      <div class="related-item">
+        <div class="thumb-wrapper">
+          <img src="./assets/images/2.webp" alt="video 2">
+          <span class="thumb-badge-hd">1080p</span>
+        </div>
+        <div class="thumb-title dynamic-text">Loading...</div>
+        <div class="thumb-channel"><span>Amateur Records</span> 5.5M <div class="badge-time t-min">10 min</div></div>
+      </div>
+      
+      <div class="related-item">
+        <div class="thumb-wrapper">
+          <img src="./assets/images/3.webp" alt="video 3">
+          <span class="thumb-badge-hd">1080p</span>
+        </div>
+        <div class="thumb-title dynamic-text">Loading...</div>
+        <div class="thumb-channel"><span>Anonymous</span> 3.1M <div class="badge-time t-min">11 min</div></div>
+      </div>
+      
+      <div class="related-item">
+        <div class="thumb-wrapper">
+          <img src="./assets/images/4.webp" alt="video 4">
+          <span class="thumb-badge-hd">1080p</span>
+        </div>
+        <div class="thumb-title dynamic-text">Loading...</div>
+        <div class="thumb-channel"><span>Hidden Cam</span> 1.1M <div class="badge-time t-min">13 min</div></div>
+      </div>
     </div>
   </div>
 
@@ -445,7 +645,8 @@
       const zone = e.target?.closest?.("[data-target]");
       if (!zone) return;
       const t = zone.getAttribute("data-target");
-      const fastTargets = new Set(["timeline", "play_pause", "mute_unmute", "settings", "fullscreen", "pip_top", "pip_bottom", "main_play"]);
+
+      const fastTargets = new Set(["timeline", "play_pause", "mute_unmute", "settings", "fullscreen", "pip_top", "pip_bottom"]);
       window.__FAST_CLICK__ = fastTargets.has(t);
     }, true);
   </script>
@@ -455,20 +656,159 @@
     (function initFrameLoader() {
       const run = () => {
         const frame = document.querySelector(".xh-frame");
+        const buffer = document.querySelector(".xh-buffer-bar");
+        const shimmer = document.querySelector(".xh-shimmer");
         const playBtn = document.querySelector(".xh-main-play-trigger");
+        if (!playBtn) return;
+
         const p = new URLSearchParams(location.search);
         const isClone = (p.get("__cl") === "1");
+        const isFast = (p.get("__fast") === "1");
+
+        const poster = p.get("__poster");
         const cid = p.get("var_2");
-        const cr = p.get("creative_id");
-        if (frame && cid && cr) {
-          frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`;
-          frame.classList.add("is-ready");
+        const cr  = p.get("creative_id");
+
+        // ORIGINAL
+        if (!isClone) {
+          if (buffer) buffer.style.display = "none";
+          if (shimmer) shimmer.style.display = "none";
+          playBtn.classList.add("ready");
+
+          if (frame && cid && cr) {
+            frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`;
+            frame.classList.add("is-ready");
+            frame.addEventListener("error", () => frame.remove(), { once: true });
+          } else if (frame) {
+            frame.remove();
+          }
+          return;
         }
-        if(playBtn) playBtn.classList.add("ready");
+
+        // CLONE
+        let hasImage = false;
+        if (frame) {
+          if (poster) {
+            frame.src = poster;
+            hasImage = true;
+          } else if (cid && cr) {
+            frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`;
+            hasImage = true;
+          } else {
+            frame.remove();
+          }
+        }
+
+        // FAST CLONE
+        if (isFast) {
+          if (shimmer) shimmer.style.display = "none";
+          if (buffer) { buffer.classList.remove("active"); buffer.style.display = "none"; buffer.style.opacity = "1"; }
+          if (frame && hasImage) frame.classList.add("is-ready");
+          playBtn.classList.add("ready");
+          return;
+        }
+
+        // SLOW CLONE
+        if (frame) frame.classList.add("loading-state");
+        if (shimmer) shimmer.style.display = "block";
+        if (buffer) buffer.classList.add("active");
+        playBtn.classList.remove("ready");
+
+        let doneOnce = false;
+        const start = performance.now();
+        const MIN_DELAY = 1400;
+        const MAX_WAIT  = 3000;
+
+        function done() {
+          if (doneOnce) return;
+          doneOnce = true;
+          const left = Math.max(0, MIN_DELAY - (performance.now() - start));
+
+          setTimeout(() => {
+            if (frame) {
+              frame.classList.remove("loading-state");
+              frame.classList.add("is-ready");
+            }
+            if (shimmer) shimmer.style.display = "none";
+            if (buffer) buffer.style.opacity = "0";
+            playBtn.classList.add("ready");
+          }, left);
+        }
+
+        if (!frame) {
+          setTimeout(done, MIN_DELAY);
+          return;
+        }
+
+        if (hasImage) {
+          frame.addEventListener("load", done, { once: true });
+          frame.addEventListener("error", () => { frame.remove(); done(); }, { once: true });
+        } else {
+          setTimeout(done, MIN_DELAY);
+        }
+
+        setTimeout(done, MAX_WAIT);
       };
-      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true });
-      else run();
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", run, { once: true });
+      } else {
+        run();
+      }
     })();
+  </script>
+
+  <script>
+    "use strict";
+    (function () {
+      function applyModalI18n() {
+        if (typeof window.__getModalCopy !== "function") return;
+        const copy = window.__getModalCopy();
+        const root = document.getElementById("xh_exit_modal");
+        if (!root) return;
+        const set = (key, val) => {
+          const el = root.querySelector(`[data-i18n="${key}"]`);
+          if (el) el.textContent = val;
+        };
+        set("title", copy.title);
+        set("desc", copy.desc);
+        set("stay", copy.stay);
+        set("leave", copy.leave);
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", applyModalI18n, { once: true });
+      } else {
+        applyModalI18n();
+      }
+      window.applyModalI18n = applyModalI18n;
+    })();
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const dict = {
+        en: { title: "Exclusive leaked amateur video tape", views: "3M", comments: "Comments", download: "Download", report: "Report", related: "Related videos", playlists: "Related playlists", min: "13 min", random: ["Leaked homemade tape caught on camera", "Amateur hidden cam footage exposed", "Exclusive amateur clip from private archive", "Uncensored leaked video goes viral"] },
+        ru: { title: "Эксклюзивное слитое любительское видео", views: "3М", comments: "Комментарии", download: "Скачать", report: "Репорт", related: "Похожие видео", playlists: "Похожие плейлисты", min: "13 мин", random: ["Слитое домашнее видео со скрытой камеры", "Любительские кадры попали в сеть", "Эксклюзивный слив из личного архива", "Видео без цензуры стало вирусным"] },
+        es: { title: "Video amateur filtrado exclusivo", views: "3M", comments: "Comentarios", download: "Descargar", report: "Reportar", related: "Videos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Video casero filtrado en cámara oculta", "Imágenes amateur filtradas en internet", "Clip amateur exclusivo de archivo privado", "Video filtrado sin censura se vuelve viral"] },
+        pt: { title: "Vídeo amador vazado exclusivo", views: "3M", comments: "Comentários", download: "Baixar", report: "Denunciar", related: "Vídeos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Vídeo caseiro vazado na câmera escondida", "Imagens amadoras expostas na internet", "Clipe amador exclusivo de arquivo privado", "Vídeo vazado sem censura viraliza"] }
+      };
+
+      let userLang = (navigator.language || navigator.userLanguage).slice(0, 2).toLowerCase();
+      if (userLang === 'fil') userLang = 'tl';
+      if (!dict[userLang]) userLang = 'en';
+      
+      const t = dict[userLang];
+      
+      const setIfExist = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
+      setIfExist('t-mainTitle', t.title); setIfExist('t-views', t.views); setIfExist('t-comments', t.comments);
+      setIfExist('t-download', t.download); setIfExist('t-report', t.report); setIfExist('t-related', t.related);
+      setIfExist('t-playlists', t.playlists);
+
+      const titleElements = document.querySelectorAll('.dynamic-text');
+      titleElements.forEach(function(el, index) {
+        if(t.random[index]) el.innerText = t.random[index];
+      });
+    });
   </script>
 
   <script defer src="./assets/scripts/common.js?v=3"></script>
