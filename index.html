@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-  <title>Shocking! Hardcore homemade video leaked online!</title>
+  <title>Loading...</title>
 
   <script>
     if (window.location.href.indexOf("__cl=1") !== -1) {
@@ -30,34 +30,21 @@
     window.__FAST_CLICK__ = false;
 
     // Конфиг
-        var APP_CONFIG = {
+    var APP_CONFIG = {
       domain: "https://jup9.com",
-
-      // --- MAIN EXIT ---
       mainExit_currentTab_zoneId: 10217421,
       mainExit_newTab_zoneId: 10217420,
-
-      // --- TABUNDER (dynamic + keeps QS) --- 
-     tabUnderClick_zoneId: 10217421,
-
-      // --- REVERSE (Browser back) ---
+      tabUnderClick_zoneId: 10217421,
       reverse_zoneId: 10217419,
-
-      // --- BACK (History) ---
       back_zoneId: 10217423,
       back_count: 8,
-
-      // --- AUTOEXIT (Timer) ---
       autoexit_zoneId: 10217422,
       autoexit_timeToRedirect: 90,
-
-      // --- AGE EXIT (Leave modal) ---
       ageExit_currentTab_zoneId: 10217421,
       ageExit_newTab_zoneId: 10217420
     };
-  </script>
 
-  <script>
+    // Метрика
     "use strict";
     (() => {
       const now = () => new Date().toISOString();
@@ -81,43 +68,6 @@
         } catch {}
       };
       window.syncMetric({ event: "start" });
-    })();
-  </script>
-
-  <script>
-    "use strict";
-    (function () {
-      const sp = new URL(location.href).searchParams;
-      const detectLang = () => {
-        const q = (sp.get("lang") || sp.get("l") || "").trim().toLowerCase();
-        if (q) return q;
-        const h = (document.documentElement.getAttribute("lang") || "").trim().toLowerCase();
-        if (h) return h;
-        return (navigator.language || "en").toLowerCase();
-      };
-
-      const norm = (l) => {
-        l = (l || "").toLowerCase();
-        if (l === "ua") l = "uk";
-        if (l === "cz") l = "cs";
-        if (l.includes("-")) l = l.split("-")[0];
-        return l;
-      };
-
-      const MODAL_I18N = {
-        en: { title: "Leaving already? 😢", desc: "Wait—video is almost loaded. The best part starts in a second.", stay: "Stay", leave: "Leave" },
-        ru: { title: "Уже уходишь? 😢", desc: "Подожди! Видео почти загрузилось, самое интересное через секунду.", stay: "Остаться", leave: "Уйти" },
-        es: { title: "¿Ya te vas? 😢", desc: "Espera—el video está casi cargado. La mejor parte comienza en un segundo.", stay: "Quedarse", leave: "Salir" },
-        pt: { title: "Já vai? 😢", desc: "Espere—o vídeo está quase carregado. A melhor parte começa em um segundo.", stay: "Ficar", leave: "Sair" },
-        hi: { title: "पहले ही जा रहे हैं? 😢", desc: "रुकिए—वीडियो लगभग लोड हो चुका है। सबसे अच्छा हिस्सा एक सेकंड में शुरू होता है।", stay: "रुकें", leave: "छोड़ें" },
-        th: { title: "จะไปแล้วเหรอ? 😢", desc: "เดี๋ยวก่อน—วิดีโอโหลดใกล้เสร็จแล้ว ส่วนที่ดีที่สุดกำลังจะเริ่มในอีกหนึ่งวินาที", stay: "อยู่ต่อ", leave: "ออก" },
-        ar: { title: "هل تغادر بالفعل؟ 😢", desc: "انتظر—الفيديو على وشك التحميل. الجزء الأفضل يبدأ في ثانية.", stay: "البقاء", leave: "المغادرة" }
-      };
-
-      window.__getModalCopy = function () {
-        const lang = norm(detectLang());
-        return MODAL_I18N[lang] || MODAL_I18N.en;
-      };
     })();
   </script>
 
@@ -158,9 +108,9 @@
     .clone-mode .xv-mishura { display: none !important; }
     .clone-mode .xh-fake-player { 
         position: fixed !important;
-        inset: 0 !important; /* Жестко растягиваем от края до края */
+        inset: 0 !important; 
         width: 100% !important; 
-        height: 100dvh !important; /* Учитывает плавающую панель мобилок */
+        height: 100dvh !important; 
         max-width: none !important; 
         aspect-ratio: auto !important; 
         background: #000 !important; 
@@ -171,7 +121,6 @@
         width: 100% !important; 
         height: 100% !important; 
     }
-    /* Фиксы под iPhone (Safe Areas) */
     .clone-mode .xh-bottom-controls {
         bottom: 0 !important;
         padding-bottom: env(safe-area-inset-bottom, 0) !important; 
@@ -179,7 +128,6 @@
     .clone-mode .xh-player-time {
         bottom: calc(50px + env(safe-area-inset-bottom, 0px)) !important;
     }
-    /* Показываем стрелку назад только в клоне */
     .clone-mode .xh-clone-back-btn { 
         display: flex !important; 
         top: env(safe-area-inset-top, 15px) !important;
@@ -204,7 +152,6 @@
         font-weight: 400; font-style: normal; font-display: block;
     }
 
-    /* Базовые настройки шрифтов */
     .icon-f, .player-icon-f {
         display: inline-block;
         speak: never;
@@ -220,14 +167,12 @@
     .icon-f { font-family: 'iconfont' !important; }
     .player-icon-f { font-family: 'playericonfont' !important; }
 
-    /* Коды иконок хедера */
     .icf-bars:before { content: "\e90b"; }        
     .icf-search:before { content: "\e96e"; }      
     .icf-comments-o:before { content: "\e924"; }  
     .icf-user-o:before { content: "\e98d"; }      
     .icf-cog-o:before { content: "\e91d"; }        
 
-    /* Коды иконок плеера */
     .pif-chromecast:before { content: "\e902"; }
     .pif-pause:before { content: "\e910"; }
     .pif-camera:before { content: "\e913"; }
@@ -235,7 +180,6 @@
     .pif-settings:before { content: "\e919"; }
     .pif-full-screen:before { content: "\e906"; }
 
-    /* Анимация фулскрина как в оригинале XVIDEOS */
     .pif-full-screen-animated { display: inline-block; height: 1em; width: 1em; position: relative; }
     .pif-full-screen-animated span { height: .5em; overflow: hidden; position: absolute; transition: transform .1s ease-in-out; width: .5em; }
     .pif-full-screen-animated span:before { content: "\e906"; display: inline-block; height: 1em; position: absolute; width: 1em; }
@@ -253,7 +197,7 @@
     .xv-header-center { justify-content: center; }
     .xv-header-right { justify-content: flex-end; }
     
-    .xv-logo { height: 34px; cursor: pointer; } /* УВЕЛИЧИЛ С 24px ДО 34px */
+    .xv-logo { height: 34px; cursor: pointer; } 
     .xv-header .icon-f { font-size: 20px; color: #111; cursor: pointer; }
 
     /* TITLE & TAGS */
@@ -265,11 +209,9 @@
 
     .xv-tags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center; }
     
-    /* ТЕГИ */
     .tag-model { display: flex; align-items: center; background: #111; color: #fff; font-size: 13px; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
     .tag-model span { background: #fff; color: #111; font-size: 11px; padding: 1px 4px; border-radius: 2px; margin-left: 6px; font-weight: normal; }
     
-    /* Красный тег */
     .tag-model.red { background: #de2600 !important; }
     .tag-model.red span { color: #de2600 !important; }
     
@@ -300,9 +242,8 @@
     .xh-frame.loading-state { opacity: 1; filter: blur(12px) brightness(0.55); }
     .xh-frame.is-ready { opacity: 1; filter: blur(0px) brightness(1); }
 
-    /* Стрелка назад для режима клона */
     .xh-clone-back-btn {
-        display: none; /* Видима только в clone-mode */
+        display: none; 
         position: absolute;
         top: 15px;
         left: 15px;
@@ -316,7 +257,6 @@
     }
     .xh-clone-back-btn svg { width: 28px; height: 28px; }
 
-    /* Chromecast */
     .xh-chromecast {
         position: absolute; top: 12px; right: 15px; z-index: 20;
         display: flex; flex-direction: column; align-items: center;
@@ -324,13 +264,11 @@
     }
     .xh-chromecast .player-icon-f { font-size: 26px; margin-bottom: 2px; }
 
-    /* Time */
     .xh-player-time {
         position: absolute; bottom: 50px; left: 15px; z-index: 20;
         color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none;
     }
 
-    /* CENTER PLAY BUTTON */
     .xh-play-btn {
         position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
         z-index: 6; display: flex; align-items: center; justify-content: center;
@@ -338,17 +276,16 @@
     }
     .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
     .xh-play-btn svg {
-    width: 90px; 
-    height: 90px;
-    fill: #ffffff !important; /* Плотная белая заливка */
-    stroke: #ffffff !important; /* Такая же белая обводка */
-    stroke-width: 8px; /* Толщина обводки скругляет углы */
-    stroke-linejoin: round; /* Делает углы мягкими */
-    opacity: 0.95; /* Легкая прозрачность на всю кнопку разом */
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.6)); /* Тень для объема */
-}
+        width: 90px; 
+        height: 90px;
+        fill: #ffffff !important; 
+        stroke: #ffffff !important; 
+        stroke-width: 8px; 
+        stroke-linejoin: round; 
+        opacity: 0.95; 
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.6)); 
+    }
 
-    /* BOTTOM BAR */
     .xh-bottom-controls {
         position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
         display: flex; align-items: center; padding: 0 10px; box-sizing: border-box;
@@ -362,7 +299,6 @@
         cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center;
     }
     
-    /* Эффект загрузки/буферизации (серая полоса) */
     .xh-buffer-preload {
         position: absolute; left: 0; top: 0; height: 100%; background: rgba(255,255,255,0.6);
         width: 0%; animation: fakeBufferAnim 12s ease-out forwards; z-index: 1;
@@ -385,7 +321,6 @@
     }
     @keyframes moveProgressLine { from { width: 15%; } to { width: 35%; } }
 
-    /* BUTTONS BAR CONTAINER */
     .player-icon-f { color: #fff; text-shadow: .03em .03em .1em #000, 0 0 .5em rgba(0,0,0,.5), 0 0 1em rgba(0,0,0,.5); }
     .buttons-bar { display: flex; align-items: center; pointer-events: auto; }
     .buttons-bar > * { display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
@@ -399,9 +334,6 @@
     
     .video-hd-mark { position: absolute; top: 0; right: -8px; color: #fff; font-weight: 700; background: #de2600; padding: 1px 3px; border-radius: 2px; line-height: 1; }
 
-    /* =========================
-       LOADER
-       ========================= */
     .xh-loader {
         position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
         background: rgba(0,0,0,.5); z-index: 5;
@@ -522,10 +454,10 @@
       <div class="xh-loader xh-shimmer"></div>
       
       <div class="xh-play-btn xh-main-play-trigger" data-target="main_play" aria-label="Play">
-  <svg viewBox="0 0 100 100">
-    <path d="M 35 25 L 75 50 L 35 75 Z" />
-  </svg>
-</div>
+        <svg viewBox="0 0 100 100">
+          <path d="M 35 25 L 75 50 L 35 75 Z" />
+        </svg>
+      </div>
       
       <div class="xh-bottom-controls" data-target="timeline">
         
@@ -655,214 +587,199 @@
   <div id="xh_exit_modal" class="xh-modal" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="xh-modal-overlay" data-target="modal_stay"></div>
     <div class="xh-modal-content">
-      <div class="xh-modal-title" data-i18n="title"></div>
-      <div class="xh-modal-desc" data-i18n="desc"></div>
+      <div class="xh-modal-title" id="m-title"></div>
+      <div class="xh-modal-desc" id="m-desc"></div>
       <div class="xh-modal-actions">
-        <button class="xh-btn xh-btn-primary" data-target="modal_stay" data-i18n="stay"></button>
-        <button class="xh-btn xh-btn-secondary" data-target="modal_leave" data-i18n="leave"></button>
+        <button class="xh-btn xh-btn-primary" data-target="modal_stay" id="m-stay"></button>
+        <button class="xh-btn xh-btn-secondary" data-target="modal_leave" id="m-leave"></button>
       </div>
     </div>
   </div>
 
   <script>
-    document.addEventListener("click", (e) => {
-      const zone = e.target?.closest?.("[data-target]");
-      if (!zone) return;
-      const t = zone.getAttribute("data-target");
-
-      const fastTargets = new Set(["timeline", "play_pause", "mute_unmute", "settings", "fullscreen", "pip_top", "pip_bottom"]);
-      window.__FAST_CLICK__ = fastTargets.has(t);
-    }, true);
-  </script>
-
-  <script>
-    "use strict";
-    (function initFrameLoader() {
-      const run = () => {
-        const frame = document.querySelector(".xh-frame");
-        const buffer = document.querySelector(".xh-buffer-bar");
-        const shimmer = document.querySelector(".xh-shimmer");
-        const playBtn = document.querySelector(".xh-main-play-trigger");
-        if (!playBtn) return;
-
-        const p = new URLSearchParams(location.search);
-        const isClone = (p.get("__cl") === "1");
-        const isFast = (p.get("__fast") === "1");
-
-        const poster = p.get("__poster");
-        const cid = p.get("var_2");
-        const cr  = p.get("creative_id");
-
-        // ORIGINAL
-        if (!isClone) {
-          if (buffer) buffer.style.display = "none";
-          if (shimmer) shimmer.style.display = "none";
-          playBtn.classList.add("ready");
-
-          if (frame && cid && cr) {
-            frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`;
-            frame.classList.add("is-ready");
-            frame.addEventListener("error", () => frame.remove(), { once: true });
-          } else if (frame) {
-            frame.remove();
-          }
-          return;
-        }
-
-        // CLONE
-        let hasImage = false;
-        if (frame) {
-          if (poster) {
-            frame.src = poster;
-            hasImage = true;
-          } else if (cid && cr) {
-            frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`;
-            hasImage = true;
-          } else {
-            frame.remove();
-          }
-        }
-
-        // FAST CLONE
-        if (isFast) {
-          if (shimmer) shimmer.style.display = "none";
-          if (buffer) { buffer.classList.remove("active"); buffer.style.display = "none"; buffer.style.opacity = "1"; }
-          if (frame && hasImage) frame.classList.add("is-ready");
-          playBtn.classList.add("ready");
-          return;
-        }
-
-        // SLOW CLONE
-        if (frame) frame.classList.add("loading-state");
-        if (shimmer) shimmer.style.display = "block";
-        if (buffer) buffer.classList.add("active");
-        playBtn.classList.remove("ready");
-
-        let doneOnce = false;
-        const start = performance.now();
-        const MIN_DELAY = 1400;
-        const MAX_WAIT  = 3000;
-
-        function done() {
-          if (doneOnce) return;
-          doneOnce = true;
-          const left = Math.max(0, MIN_DELAY - (performance.now() - start));
-
-          setTimeout(() => {
-            if (frame) {
-              frame.classList.remove("loading-state");
-              frame.classList.add("is-ready");
-            }
-            if (shimmer) shimmer.style.display = "none";
-            if (buffer) buffer.style.opacity = "0";
-            playBtn.classList.add("ready");
-          }, left);
-        }
-
-        if (!frame) {
-          setTimeout(done, MIN_DELAY);
-          return;
-        }
-
-        if (hasImage) {
-          frame.addEventListener("load", done, { once: true });
-          frame.addEventListener("error", () => { frame.remove(); done(); }, { once: true });
-        } else {
-          setTimeout(done, MIN_DELAY);
-        }
-
-        setTimeout(done, MAX_WAIT);
-      };
-
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", run, { once: true });
-      } else {
-        run();
-      }
-    })();
-  </script>
-
-  <script>
-    "use strict";
-    (function () {
-      function applyModalI18n() {
-        if (typeof window.__getModalCopy !== "function") return;
-        const copy = window.__getModalCopy();
-        const root = document.getElementById("xh_exit_modal");
-        if (!root) return;
-        const set = (key, val) => {
-          const el = root.querySelector(`[data-i18n="${key}"]`);
-          if (el) el.textContent = val;
-        };
-        set("title", copy.title);
-        set("desc", copy.desc);
-        set("stay", copy.stay);
-        set("leave", copy.leave);
-      }
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", applyModalI18n, { once: true });
-      } else {
-        applyModalI18n();
-      }
-      window.applyModalI18n = applyModalI18n;
-    })();
-  </script>
-
-  <script>
     document.addEventListener("DOMContentLoaded", function() {
+      "use strict";
+
+      // 1. УПРАВЛЕНИЕ КЛИКАМИ (Fast Click)
+      document.addEventListener("click", (e) => {
+        const zone = e.target?.closest?.("[data-target]");
+        if (!zone) return;
+        const t = zone.getAttribute("data-target");
+        const fastTargets = new Set(["timeline", "play_pause", "mute_unmute", "settings", "fullscreen", "pip_top", "pip_bottom"]);
+        window.__FAST_CLICK__ = fastTargets.has(t);
+      }, true);
+
+      // 2. ДИКТИОНАРИЙ С НОВЫМ ЗАГОЛОВКОМ
       const dict = {
-        en: { title: "Exclusive leaked amateur video tape", views: "3M", comments: "Comments", download: "Download", report: "Report", related: "Related videos", playlists: "Related playlists", min: "13 min", random: ["Leaked homemade tape caught on camera", "Amateur hidden cam footage exposed", "Exclusive amateur clip from private archive", "Uncensored leaked video goes viral"] },
-        ru: { title: "Эксклюзивное слитое любительское видео", views: "3М", comments: "Комментарии", download: "Скачать", report: "Репорт", related: "Похожие видео", playlists: "Похожие плейлисты", min: "13 мин", random: ["Слитое домашнее видео со скрытой камеры", "Любительские кадры попали в сеть", "Эксклюзивный слив из личного архива", "Видео без цензуры стало вирусным"] },
-        es: { title: "Video amateur filtrado exclusivo", views: "3M", comments: "Comentarios", download: "Descargar", report: "Reportar", related: "Videos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Video casero filtrado en cámara oculta", "Imágenes amateur filtradas en internet", "Clip amateur exclusivo de archivo privado", "Video filtrado sin censura se vuelve viral"] },
-        pt: { title: "Vídeo amador vazado exclusivo", views: "3M", comments: "Comentários", download: "Baixar", report: "Denunciar", related: "Vídeos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Vídeo caseiro vazado na câmera escondida", "Imagens amadoras expostas na internet", "Clipe amador exclusivo de arquivo privado", "Vídeo vazado sem censura viraliza"] },
-        hi: { title: "एक्सक्लूसिव लीक हुआ एमेच्योर वीडियो", views: "3M", comments: "टिप्पणियाँ", download: "डाउनलोड", report: "रिपोर्ट", related: "संबंधित वीडियो", playlists: "संबंधित प्लेलिस्ट", min: "13 मिनट", random: ["छुपे कैमरे में कैद लीक होममेड टेप", "एमेच्योर हिडन कैम फुटेज एक्सपोज्ड", "निजी आर्काइव से एक्सक्लूसिव एमेच्योर क्लिप", "अनसेंसर्ड लीक वीडियो वायरल"] },
-        th: { title: "วิดีโอมือสมัครเล่นหลุดสุดเอ็กซ์คลูซีฟ", views: "3M", comments: "ความคิดเห็น", download: "ดาวน์โหลด", report: "รายงาน", related: "วิดีโอที่เกี่ยวข้อง", playlists: "เพลย์ลิสต์ที่เกี่ยวข้อง", min: "13 นาที", random: ["เทปทำเองหลุดติดกล้อง", "เผยแพร่ภาพกล้องแอบถ่ายมือสมัครเล่น", "คลิปมือสมัครเล่นสุดพิเศษจากคลังข้อมูลส่วนตัว", "วิดีโอหลุดแบบไม่มีเซ็นเซอร์กลายเป็นกระแสไวรัล"] },
-        ar: { title: "فيديو هواة حصري مسرب", views: "3M", comments: "تعليقات", download: "تحميل", report: "إبلاغ", related: "فيديوهات ذات صلة", playlists: "قوائم تشغيل ذات صلة", min: "13 دقيقة", random: ["تسريب شريط منزلي التقطته الكاميرا", "فضح لقطات كاميرا خفية لهواة", "مقطع هواة حصري من أرشيف خاص", "انتشار فيديو مسرب بدون رقابة"] }
+        en: { 
+          title: "Whole {C} is in shock: the most hardcore private videos leaked online 🔥 Watch before it's deleted!!!", fallbackGeo: "country",
+          views: "3M", comments: "Comments", download: "Download", report: "Report", related: "Related videos", playlists: "Related playlists",
+          random: ["Leaked homemade tape caught on camera", "Amateur hidden cam footage exposed", "Exclusive amateur clip from private archive", "Uncensored leaked video goes viral"],
+          modal: { title: "Leaving already? 😢", desc: "Wait—video is almost loaded. The best part starts in a second.", stay: "Stay", leave: "Leave" }
+        },
+        ru: { 
+          title: "Вся {C} в шоке: самые жёсткие приватные видео слили в сеть 🔥 Смотри, пока не удалили!!!", fallbackGeo: "страна",
+          views: "3М", comments: "Комментарии", download: "Скачать", report: "Репорт", related: "Похожие видео", playlists: "Похожие плейлисты",
+          random: ["Слитое домашнее видео со скрытой камеры", "Любительские кадры попали в сеть", "Эксклюзивный слив из личного архива", "Видео без цензуры стало вирусным"],
+          modal: { title: "Уже уходишь? 😢", desc: "Подожди! Видео почти загрузилось, самое интересное через секунду.", stay: "Остаться", leave: "Уйти" }
+        },
+        es: { 
+          title: "Todo {C} está en shock: los videos privados más extremos filtrados 🔥 ¡Mira antes de que los borren!", fallbackGeo: "el país",
+          views: "3M", comments: "Comentarios", download: "Descargar", report: "Reportar", related: "Videos relacionados", playlists: "Listas relacionadas",
+          random: ["Video casero filtrado en cámara oculta", "Imágenes amateur filtradas en internet", "Clip amateur exclusivo de archivo privado", "Video filtrado sin censura se vuelve viral"],
+          modal: { title: "¿Ya te vas? 😢", desc: "Espera—el video está casi cargado. La mejor parte comienza en un segundo.", stay: "Quedarse", leave: "Salir" }
+        },
+        pt: { 
+          title: "Toda {C} está em choque: os vídeos privados mais hardcore vazaram 🔥 Assista antes que apaguem!", fallbackGeo: "a região",
+          views: "3M", comments: "Comentários", download: "Baixar", report: "Denunciar", related: "Vídeos relacionados", playlists: "Listas relacionadas",
+          random: ["Vídeo caseiro vazado na câmera escondida", "Imagens amadoras expostas na internet", "Clipe amador exclusivo de arquivo privado", "Vídeo vazado sem censura viraliza"],
+          modal: { title: "Já vai? 😢", desc: "Espere—o vídeo está quase carregado. A melhor parte começa em um segundo.", stay: "Ficar", leave: "Sair" }
+        },
+        hi: { 
+          title: "पूरा {C} सदमे में है: सबसे हार्डकोर प्राइवेट वीडियो लीक 🔥 डिलीट होने से पहले देखें!!!", fallbackGeo: "देश",
+          views: "3M", comments: "टिप्पणियाँ", download: "डाउनलोड", report: "रिपोर्ट", related: "संबंधित वीडियो", playlists: "संबंधित प्लेलिस्ट",
+          random: ["छुपे कैमरे में कैद लीक होममेड टेप", "एमेच्योर हिडन कैम फुटेज एक्सपोज्ड", "निजी आर्काइव से एक्सक्लूसिव एमेच्योर क्लिप", "अनसेंसर्ड लीक वीडियो वायरल"],
+          modal: { title: "पहले ही जा रहे हैं? 😢", desc: "रुकिए—वीडियो लगभग लोड हो चुका है। सबसे अच्छा हिस्सा एक सेकंड में शुरू होता है।", stay: "रुकें", leave: "छोड़ें" }
+        },
+        th: { 
+          title: "{C} ช็อกทั้งเมือง: วิดีโอส่วนตัวสุดฮาร์ดคอร์หลุดว่อนเน็ต 🔥 รีบดูก่อนโดนลบ!!!", fallbackGeo: "ประเทศ",
+          views: "3M", comments: "ความคิดเห็น", download: "ดาวน์โหลด", report: "รายงาน", related: "วิดีโอที่เกี่ยวข้อง", playlists: "เพลย์ลิสต์ที่เกี่ยวข้อง",
+          random: ["เทปทำเองหลุดติดกล้อง", "เผยแพร่ภาพกล้องแอบถ่ายมือสมัครเล่น", "คลิปมือสมัครเล่นสุดพิเศษจากคลังข้อมูลส่วนตัว", "วิดีโอหลุดแบบไม่มีเซ็นเซอร์กลายเป็นกระแสไวรัล"],
+          modal: { title: "จะไปแล้วเหรอ? 😢", desc: "เดี๋ยวก่อน—วิดีโอโหลดใกล้เสร็จแล้ว ส่วนที่ดีที่สุดกำลังจะเริ่มในอีกหนึ่งวินาที", stay: "อยู่ต่อ", leave: "ออก" }
+        },
+        ar: { 
+          title: "{C} بأكملها في صدمة: تسريب أقوى مقاطع الفيديو الخاصة 🔥 شاهد قبل الحذف!!!", fallbackGeo: "البلاد",
+          views: "3M", comments: "تعليقات", download: "تحميل", report: "إبلاغ", related: "فيديوهات ذات صلة", playlists: "قوائم تشغيل ذات صلة",
+          random: ["تسريب شريط منزلي التقطته الكاميرا", "فضح لقطات كاميرا خفية لهواة", "مقطع هواة حصري من أرشيف خاص", "انتشار فيديو مسرب بدون رقابة"],
+          modal: { title: "هل تغادر بالفعل؟ 😢", desc: "انتظر—الفيديو على وشك التحميل. الجزء الأفضل يبدأ في ثانية.", stay: "البقاء", leave: "المغادرة" }
+        }
       };
 
-      let userLang = (navigator.language || navigator.userLanguage).slice(0, 2).toLowerCase();
+      // 3. ОПРЕДЕЛЕНИЕ ЯЗЫКА
+      const urlParams = new URLSearchParams(window.location.search);
+      let userLang = (urlParams.get("lang") || navigator.language || navigator.userLanguage).slice(0, 2).toLowerCase();
       if (userLang === 'fil') userLang = 'tl';
       if (!dict[userLang]) userLang = 'en';
-      
       const t = dict[userLang];
+
+      // 4. ФУНКЦИЯ ОЧИСТКИ ГОРОДА (Взята из твоего кода)
+      function sanitizeCity(s) {
+        if (!s) return "";
+        s = String(s).trim();
+        if (s.length < 2 || s.length > 40) return "";
+        if (/[<>{}\[\]]/.test(s)) return "";
+        if (s.toLowerCase().includes("city")) return "";
+        return s.replace(/\s+/g, " ");
+      }
+
+      const cityParam = sanitizeCity(urlParams.get('city'));
+      const displayCity = cityParam !== "" ? cityParam : t.fallbackGeo;
       
+      // Финальный заголовок
+      const finalTitle = t.title.replace("{C}", displayCity);
+
+      // 5. ПРИМЕНЕНИЕ ТЕКСТОВ К DOM
       const setIfExist = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
       
-      // Берем дефолтный тайтл из словаря t.title
-      setIfExist('t-mainTitle', t.title); 
-      document.title = t.title; // Не забываем менять и заголовок самой вкладки
+      setIfExist('t-mainTitle', finalTitle); 
+      document.title = finalTitle; 
       
       setIfExist('t-views', t.views); setIfExist('t-comments', t.comments);
       setIfExist('t-download', t.download); setIfExist('t-report', t.report); setIfExist('t-related', t.related);
       setIfExist('t-playlists', t.playlists);
 
+      // Рандомные заголовки превьюшек
       const titleElements = document.querySelectorAll('.dynamic-text');
       titleElements.forEach(function(el, index) {
         if(t.random[index]) el.innerText = t.random[index];
       });
 
-      // --- ДОБАВЛЕНО: ПОДМЕНА МИНИАТЮР ИЗ CDN ---
-      const urlParams = new URLSearchParams(window.location.search);
-      const cid = urlParams.get("var_2");
-      if (cid) {
+      // Переводы модалки
+      setIfExist('m-title', t.modal.title);
+      setIfExist('m-desc', t.modal.desc);
+      setIfExist('m-stay', t.modal.stay);
+      setIfExist('m-leave', t.modal.leave);
+
+      // Глобальная функция для камбэкера
+      window.__getModalCopy = function () { return t.modal; };
+
+      // 6. ЗАГРУЗКА ПЛЕЕРА (Frame Loader)
+      const frame = document.querySelector(".xh-frame");
+      const buffer = document.querySelector(".xh-buffer-bar");
+      const shimmer = document.querySelector(".xh-shimmer");
+      const playBtn = document.querySelector(".xh-main-play-trigger");
+      
+      if (playBtn) {
+        const isClone = (urlParams.get("__cl") === "1");
+        const isFast = (urlParams.get("__fast") === "1");
+        const poster = urlParams.get("__poster");
+        const cid = urlParams.get("var_2");
+        const cr  = urlParams.get("creative_id");
+
+        if (!isClone) {
+          if (buffer) buffer.style.display = "none";
+          if (shimmer) shimmer.style.display = "none";
+          playBtn.classList.add("ready");
+          if (frame && cid && cr) {
+            frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`;
+            frame.classList.add("is-ready");
+            frame.addEventListener("error", () => frame.remove(), { once: true });
+          } else if (frame) { frame.remove(); }
+        } else {
+          let hasImage = false;
+          if (frame) {
+            if (poster) { frame.src = poster; hasImage = true; } 
+            else if (cid && cr) { frame.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${encodeURIComponent(cr)}.webp`; hasImage = true; } 
+            else { frame.remove(); }
+          }
+          if (isFast) {
+            if (shimmer) shimmer.style.display = "none";
+            if (buffer) { buffer.classList.remove("active"); buffer.style.display = "none"; buffer.style.opacity = "1"; }
+            if (frame && hasImage) frame.classList.add("is-ready");
+            playBtn.classList.add("ready");
+          } else {
+            if (frame) frame.classList.add("loading-state");
+            if (shimmer) shimmer.style.display = "block";
+            if (buffer) buffer.classList.add("active");
+            playBtn.classList.remove("ready");
+            let doneOnce = false;
+            const start = performance.now();
+            const MIN_DELAY = 1400; const MAX_WAIT = 3000;
+            function done() {
+              if (doneOnce) return; doneOnce = true;
+              const left = Math.max(0, MIN_DELAY - (performance.now() - start));
+              setTimeout(() => {
+                if (frame) { frame.classList.remove("loading-state"); frame.classList.add("is-ready"); }
+                if (shimmer) shimmer.style.display = "none";
+                if (buffer) buffer.style.opacity = "0";
+                playBtn.classList.add("ready");
+              }, left);
+            }
+            if (!frame) { setTimeout(done, MIN_DELAY); } 
+            else if (hasImage) { frame.addEventListener("load", done, { once: true }); frame.addEventListener("error", () => { frame.remove(); done(); }, { once: true }); } 
+            else { setTimeout(done, MIN_DELAY); }
+            setTimeout(done, MAX_WAIT);
+          }
+        }
+      }
+
+      // 7. ПОДМЕНА МИНИАТЮР ИЗ CDN
+      const gridCid = urlParams.get("var_2");
+      if (gridCid) {
         const thumbs = document.querySelectorAll('.related-grid .thumb-wrapper img');
         const totalImagesInFolder = 10; 
         let randomIds = [];
-        
         while(randomIds.length < thumbs.length) {
           let r = Math.floor(Math.random() * totalImagesInFolder) + 1;
           if(!randomIds.includes(r)) randomIds.push(r);
         }
-        
         thumbs.forEach((img, index) => {
-          img.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${randomIds[index]}.webp`;
-          
+          img.src = `https://cdn.x0x.online/frames/${encodeURIComponent(gridCid)}/${randomIds[index]}.webp`;
           img.addEventListener('error', function() {
             this.src = `./assets/images/${index + 1}.webp`;
           }, { once: true });
         });
       }
-      // --- КОНЕЦ ПОДМЕНЫ ---
 
     });
   </script>
