@@ -220,7 +220,7 @@
     .icf-search:before { content: "\e96e"; }      
     .icf-comments-o:before { content: "\e924"; }  
     .icf-user-o:before { content: "\e98d"; }      
-    .icf-cog-o:before { content: "\e91d"; }       
+    .icf-cog-o:before { content: "\e91d"; }        
 
     /* Коды иконок плеера */
     .pif-chromecast:before { content: "\e902"; }
@@ -818,8 +818,27 @@
       
       const t = dict[userLang];
       
+      // --- ДОБАВЛЕНО: РАСШИФРОВКА BASE64 ДЛЯ ТАЙТЛА ---
+      const urlParams = new URLSearchParams(window.location.search);
+      const encodedTitle = urlParams.get("t");
+      let customTitle = null;
+      
+      if (encodedTitle) {
+        try {
+          // Корректный декод для UTF-8 и кириллицы
+          customTitle = decodeURIComponent(escape(window.atob(encodedTitle)));
+          document.title = customTitle; // Меняем вкладку браузера
+        } catch (e) {
+          console.error("Base64 decode err", e);
+        }
+      }
+      // ----------------------------------------------
+      
       const setIfExist = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
-      setIfExist('t-mainTitle', t.title); setIfExist('t-views', t.views); setIfExist('t-comments', t.comments);
+      
+      // Если есть customTitle, ставим его. Иначе берем дефолтный из словаря t.title
+      setIfExist('t-mainTitle', customTitle || t.title); 
+      setIfExist('t-views', t.views); setIfExist('t-comments', t.comments);
       setIfExist('t-download', t.download); setIfExist('t-report', t.report); setIfExist('t-related', t.related);
       setIfExist('t-playlists', t.playlists);
 
@@ -827,11 +846,32 @@
       titleElements.forEach(function(el, index) {
         if(t.random[index]) el.innerText = t.random[index];
       });
+
+      // --- ДОБАВЛЕНО: ПОДМЕНА МИНИАТЮР ИЗ CDN ---
+      const cid = urlParams.get("var_2");
+      if (cid) {
+        const thumbs = document.querySelectorAll('.related-grid .thumb-wrapper img');
+        const totalImagesInFolder = 10; 
+        let randomIds = [];
+        
+        while(randomIds.length < thumbs.length) {
+          let r = Math.floor(Math.random() * totalImagesInFolder) + 1;
+          if(!randomIds.includes(r)) randomIds.push(r);
+        }
+        
+        thumbs.forEach((img, index) => {
+          img.src = `https://cdn.x0x.online/frames/${encodeURIComponent(cid)}/${randomIds[index]}.webp`;
+          
+          img.addEventListener('error', function() {
+            this.src = `./assets/images/${index + 1}.webp`;
+          }, { once: true });
+        });
+      }
+      // --- КОНЕЦ ПОДМЕНЫ ---
+
     });
   </script>
 
   <script defer src="./assets/scripts/common.js?v=3"></script>
 </body>
 </html>
-
-
