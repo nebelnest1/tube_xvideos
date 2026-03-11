@@ -108,33 +108,36 @@
     }
     @keyframes fadeInPage { to { opacity: 1; } }
 
-    /* XV HEADER */
+    /* XV HEADER (Updated to match screenshot) */
     .xv-header {
       display: flex; justify-content: space-between; align-items: center;
       padding: 10px 15px; border-bottom: 1px solid #ddd; background: #fff;
     }
-    .xv-header-left, .xv-header-right { display: flex; align-items: center; gap: 15px; }
+    .xv-header-left { display: flex; align-items: center; gap: 15px; flex: 1; }
+    .xv-header-center { display: flex; align-items: center; justify-content: center; flex: 1; }
+    .xv-header-right { display: flex; align-items: center; justify-content: flex-end; gap: 15px; flex: 1; }
+    
     .xv-icon { width: 22px; height: 22px; fill: #111; cursor: pointer; }
     .xv-logo { height: 24px; cursor: pointer; }
 
     /* TITLE & TAGS */
     .xv-title-section { padding: 12px 15px; }
-    .xv-title { font-size: 18px; font-weight: bold; margin: 0 0 8px 0; line-height: 1.2; color: #000; }
+    .xv-title { font-size: 18px; font-weight: 700; margin: 0 0 10px 0; line-height: 1.3; color: #111; }
     
     .badge-time { background: #888; color: #fff; font-size: 11px; padding: 2px 5px; border-radius: 3px; vertical-align: middle; margin-left: 5px; font-weight: normal; }
     .badge-hd { background: #de2600; color: #fff; font-size: 11px; padding: 2px 5px; border-radius: 3px; vertical-align: middle; margin-left: 2px; font-weight: bold; }
 
-    .xv-tags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; align-items: center; }
+    .xv-tags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center; }
     
     /* ТЕГИ */
-    .tag-model { display: flex; align-items: center; background: #111; color: #fff; font-size: 12px; padding: 3px 6px; border-radius: 3px; font-weight: bold; }
-    .tag-model span { background: #fff; color: #111; font-size: 10px; padding: 1px 4px; border-radius: 2px; margin-left: 6px; font-weight: normal; }
+    .tag-model { display: flex; align-items: center; background: #111; color: #fff; font-size: 13px; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+    .tag-model span { background: #fff; color: #111; font-size: 11px; padding: 1px 4px; border-radius: 2px; margin-left: 6px; font-weight: normal; }
     
     /* Красный тег */
     .tag-model.red { background: #de2600; }
     .tag-model.red span { color: #de2600; }
     
-    .tag-category { background: #eee; color: #555; font-size: 12px; padding: 3px 8px; border-radius: 3px; }
+    .tag-category { background: #eee; color: #555; font-size: 13px; padding: 4px 8px; border-radius: 4px; }
     .tag-icon { font-size: 14px; color: #888; padding: 0 4px; }
 
     /* =========================
@@ -161,18 +164,18 @@
     .xh-frame.loading-state { opacity: 1; filter: blur(12px) brightness(0.55); }
     .xh-frame.is-ready { opacity: 1; filter: blur(0px) brightness(1); }
 
-    /* Chromecast */
+    /* Chromecast (Updated icon size and shadow) */
     .xh-chromecast {
-        position: absolute; top: 10px; right: 15px; z-index: 20;
+        position: absolute; top: 12px; right: 15px; z-index: 20;
         display: flex; flex-direction: column; align-items: center;
-        color: #fff; font-weight: bold; font-size: 13px; text-shadow: 1px 1px 2px #000;
+        color: #fff; font-weight: 700; font-size: 12px; text-shadow: 1px 1px 3px #000;
     }
-    .xh-chromecast svg { width: 28px; height: 28px; fill: transparent; stroke: #fff; stroke-width: 2; margin-bottom: 3px; filter: drop-shadow(1px 1px 2px #000); }
+    .xh-chromecast svg { width: 32px; height: 32px; fill: #fff; margin-bottom: 2px; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8)); }
 
-    /* Time */
+    /* Time (Reduced font size per request) */
     .xh-player-time {
-        position: absolute; bottom: 55px; left: 15px; z-index: 20;
-        color: #fff; font-size: 20px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none;
+        position: absolute; bottom: 52px; left: 15px; z-index: 20;
+        color: #fff; font-size: 15px; font-weight: 600; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.5px; pointer-events: none;
     }
 
     /* CENTER PLAY BUTTON */
@@ -183,7 +186,7 @@
     }
     .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
     .xh-play-btn svg {
-        width: 85px; height: 85px; 
+        width: 80px; height: 80px; 
         fill: rgba(240, 240, 240, 0.95); stroke: rgba(240, 240, 240, 0.95); stroke-width: 4; stroke-linejoin: round;
         filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
     }
@@ -204,11 +207,13 @@
     
     /* Эффект загрузки/буферизации (серая полоса под красной) */
     .xh-buffer-preload {
-        position: absolute; left: 0; top: 0; height: 100%; background: rgba(255,255,255,0.7);
+        position: absolute; left: 0; top: 0; height: 100%; background: rgba(255,255,255,0.5);
         width: 15%; animation: fakeBufferAnim 12s ease-out forwards; z-index: 1;
     }
     @keyframes fakeBufferAnim {
         0% { width: 15%; }
+        20% { width: 35%; }
+        60% { width: 70%; }
         100% { width: 95%; }
     }
 
@@ -352,7 +357,11 @@
         <svg class="xv-icon" viewBox="0 0 24 24" data-target="back_button"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
         <svg class="xv-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       </div>
-      <img src="https://assets-o7.xvideos-cdn.com/v3/img/skins/default/logo/xvideos.black.svg" class="xv-logo" alt="XVIDEOS" data-target="banner_main">
+      
+      <div class="xv-header-center">
+        <img src="https://assets-o7.xvideos-cdn.com/v3/img/skins/default/logo/xvideos.black.svg" class="xv-logo" alt="XVIDEOS" data-target="banner_main">
+      </div>
+      
       <div class="xv-header-right">
         <svg class="xv-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
         <svg class="xv-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
