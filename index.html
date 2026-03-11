@@ -321,14 +321,15 @@
     }
     .xh-play-btn.ready { opacity: 1; pointer-events: auto; }
     .xh-play-btn svg {
-        width: 90px; 
-        height: 90px; 
-        fill: rgba(255, 255, 255, 0.95) !important; /* ВОЗВРАЩАЕМ ЗАЛИВКУ */
-        stroke: rgba(255, 255, 255, 0.95) !important; /* ОБВОДКА ТАКОГО ЖЕ ЦВЕТА */
-        stroke-width: 10px; /* ТОЛЩИНА СКРУГЛЕНИЯ УГЛОВ */
-        stroke-linejoin: round; /* МЯГКИЕ УГЛЫ */
-        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.6)); /* ТЕНЬ ДЛЯ ОБЪЕМА */
-    }
+    width: 90px; 
+    height: 90px;
+    fill: #ffffff !important; /* Плотная белая заливка */
+    stroke: #ffffff !important; /* Такая же белая обводка */
+    stroke-width: 8px; /* Толщина обводки скругляет углы */
+    stroke-linejoin: round; /* Делает углы мягкими */
+    opacity: 0.95; /* Легкая прозрачность на всю кнопку разом */
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.6)); /* Тень для объема */
+}
 
     /* BOTTOM BAR */
     .xh-bottom-controls {
@@ -504,10 +505,10 @@
       <div class="xh-loader xh-shimmer"></div>
       
       <div class="xh-play-btn xh-main-play-trigger" data-target="main_play" aria-label="Play">
-        <svg viewBox="0 0 100 100">
-            <path d="M 35 25 L 75 50 L 35 75 Z" />
-        </svg>
-      </div>
+  <svg viewBox="0 0 100 100">
+    <path d="M 35 25 L 75 50 L 35 75 Z" />
+  </svg>
+</div>
       
       <div class="xh-bottom-controls" data-target="timeline">
         
@@ -820,3 +821,4 @@
   <script defer src="./assets/scripts/common.js?v=3"></script>
 </body>
 </html>
+
