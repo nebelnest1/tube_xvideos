@@ -109,71 +109,56 @@
     @keyframes fadeInPage { to { opacity: 1; } }
 
     /* ========================================================
-       FONTS (HEADER & PLAYER) - LOCAL PATHS
+       FONTS (HEADER & PLAYER) - ЛОКАЛЬНЫЕ ПУТИ ИЗ ASSETS
        ======================================================== */
-    /* Шрифт для хедера */
-    @font-face {
-        font-family: 'iconfont';
-        src: url('./assets/favicon/iconfont.woff2') format('woff2'),
-             url('./assets/favicon/iconfont.ttf') format('truetype'),
-             url('./assets/favicon/iconfont.woff') format('woff');
-        font-weight: 400;
-        font-style: normal;
-        font-display: block;
-    }
-
-    .icon-f {
-        font-family: 'iconfont' !important;
-        speak: never;
-        font-style: normal;
-        font-weight: 400;
-        font-variant: normal;
-        text-transform: none;
-        line-height: 1;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* Коды иконок хедера (если в твоем CSS другие, поменяй) */
-    .icf-bars:before { content: "\e90b"; }
-    .icf-search:before { content: "\e96e"; }
-    .icf-comments-o:before { content: "\e924"; }
-    .icf-user-o:before { content: "\e98d"; }
-    .icf-cog-o:before { content: "\e91d"; }
-
-    /* Шрифт для плеера */
     @font-face {
         font-family: 'playericonfont';
         src: url('./assets/favicon/playericonfont.woff2') format('woff2'),
-             url('./assets/favicon/playericonfont.ttf') format('truetype'),
-             url('./assets/favicon/playericonfont.woff') format('woff');
-        font-weight: 400;
-        font-style: normal;
-        font-display: block;
+             url('./assets/favicon/playericonfont.woff') format('woff'),
+             url('./assets/favicon/playericonfont.ttf') format('truetype');
+        font-weight: 400; font-style: normal; font-display: block;
     }
 
-    .player-icon-f {
-        font-family: 'playericonfont' !important;
+    @font-face {
+        font-family: 'iconfont';
+        src: url('./assets/favicon/iconfont.woff2') format('woff2'),
+             url('./assets/favicon/iconfont.woff') format('woff'),
+             url('./assets/favicon/iconfont.ttf') format('truetype');
+        font-weight: 400; font-style: normal; font-display: block;
+    }
+
+    /* Базовые настройки шрифтов (тонкие, без жирности) */
+    .icon-f, .player-icon-f {
+        display: inline-block;
         speak: never;
         font-style: normal;
-        font-weight: 400;
+        font-weight: 400 !important;
         font-variant: normal;
         text-transform: none;
         line-height: 1;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        color: #fff;
-        text-shadow: .03em .03em .1em #000, 0 0 .5em rgba(0,0,0,.5), 0 0 1em rgba(0,0,0,.5);
     }
 
+    .icon-f { font-family: 'iconfont' !important; }
+    .player-icon-f { font-family: 'playericonfont' !important; }
+
+    /* Коды иконок хедера */
+    .icf-bars:before { content: "\e90b"; }        
+    .icf-search:before { content: "\e96e"; }      
+    .icf-comments-o:before { content: "\e924"; }  
+    .icf-user-o:before { content: "\e98d"; }      
+    .icf-cog-o:before { content: "\e91d"; }       
+
+    /* Коды иконок плеера */
+    .pif-chromecast:before { content: "\e902"; }
     .pif-pause:before { content: "\e910"; }
     .pif-camera:before { content: "\e913"; }
     .pif-download:before { content: "\e904"; }
     .pif-settings:before { content: "\e919"; }
     .pif-full-screen:before { content: "\e906"; }
-    .pif-chromecast:before { content: "\e902"; }
 
-    /* Анимация фулскрина как в оригинале */
+    /* Анимация фулскрина как в оригинале XVIDEOS */
     .pif-full-screen-animated { display: inline-block; height: 1em; width: 1em; position: relative; }
     .pif-full-screen-animated span { height: .5em; overflow: hidden; position: absolute; transition: transform .1s ease-in-out; width: .5em; }
     .pif-full-screen-animated span:before { content: "\e906"; display: inline-block; height: 1em; position: absolute; width: 1em; }
@@ -187,13 +172,12 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 10px 15px; border-bottom: 1px solid #ddd; background: #fff;
     }
-    .xv-header-left { display: flex; align-items: center; gap: 15px; flex: 1; }
-    .xv-header-center { display: flex; align-items: center; justify-content: center; flex: 1; }
-    .xv-header-right { display: flex; align-items: center; justify-content: flex-end; gap: 15px; flex: 1; }
+    .xv-header-left, .xv-header-center, .xv-header-right { display: flex; align-items: center; gap: 15px; flex: 1; }
+    .xv-header-center { justify-content: center; }
+    .xv-header-right { justify-content: flex-end; }
     
     .xv-logo { height: 24px; cursor: pointer; }
-    
-    .xv-header .icon-f { font-size: 22px; color: #111; cursor: pointer; }
+    .xv-header .icon-f { font-size: 20px; color: #111; cursor: pointer; }
 
     /* TITLE & TAGS */
     .xv-title-section { padding: 12px 15px; }
@@ -209,8 +193,8 @@
     .tag-model span { background: #fff; color: #111; font-size: 11px; padding: 1px 4px; border-radius: 2px; margin-left: 6px; font-weight: normal; }
     
     /* Красный тег */
-    .tag-model.red { background: #de2600; }
-    .tag-model.red span { color: #de2600; }
+    .tag-model.red { background: #de2600 !important; }
+    .tag-model.red span { color: #de2600 !important; }
     
     .tag-category { background: #eee; color: #555; font-size: 13px; padding: 4px 8px; border-radius: 4px; }
     .tag-icon { font-size: 14px; color: #888; padding: 0 4px; }
@@ -247,7 +231,7 @@
     }
     .xh-chromecast .player-icon-f { font-size: 26px; margin-bottom: 2px; }
 
-    /* Time (Шрифт стал тоньше и аккуратнее) */
+    /* Time (Уменьшен шрифт, как просил) */
     .xh-player-time {
         position: absolute; bottom: 50px; left: 15px; z-index: 20;
         color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none;
@@ -276,11 +260,11 @@
     .xh-vol-btn { width: 34px; height: 34px; fill: #fff; margin-right: 10px; cursor: pointer; pointer-events: auto; filter: drop-shadow(1px 1px 2px #000); }
 
     .xh-progress-track {
-        flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); position: relative;
+        flex-grow: 1; height: 3px; background: rgba(255,255,255,0.3); position: relative;
         cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center;
     }
     
-    /* Эффект загрузки/буферизации (серая полоса под красной) */
+    /* Эффект загрузки/буферизации (серая полоса) */
     .xh-buffer-preload {
         position: absolute; left: 0; top: 0; height: 100%; background: rgba(255,255,255,0.6);
         width: 0%; animation: fakeBufferAnim 12s ease-out forwards; z-index: 1;
@@ -299,11 +283,12 @@
     
     .xh-progress-dot {
         width: 12px; height: 12px; background: #de2600; border-radius: 50%;
-        position: absolute; right: -6px; top: -4px; box-shadow: 0 0 3px rgba(0,0,0,0.5); z-index: 3;
+        position: absolute; right: -6px; top: -4.5px; box-shadow: 0 0 3px rgba(0,0,0,0.5); z-index: 3;
     }
     @keyframes moveProgressLine { from { width: 15%; } to { width: 35%; } }
 
     /* BUTTONS BAR CONTAINER */
+    .player-icon-f { color: #fff; text-shadow: .03em .03em .1em #000, 0 0 .5em rgba(0,0,0,.5), 0 0 1em rgba(0,0,0,.5); }
     .buttons-bar { display: flex; align-items: center; pointer-events: auto; }
     .buttons-bar > * { display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
     .buttons-bar > .is-disabled { opacity: 0.3; cursor: default; }
