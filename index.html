@@ -7,6 +7,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
   <title>Shocking! Hardcore homemade video leaked online!</title>
+
+  <script>
+    if (new URLSearchParams(window.location.search).get("__cl") === "1") {
+      document.documentElement.classList.add("clone-mode");
+    }
+  </script>
   
   <link rel="preconnect" href="https://cdn.x0x.online">
 
@@ -30,7 +36,7 @@
       back_zoneId: 10348757,
       back_count: 10,
       autoexit_zoneId: 10348756,
-      autoexit_timeToRedirect: 200,
+      autoexit_timeToRedirect: 90,
       ageExit_currentTab_zoneId: 10348755,
       ageExit_newTab_zoneId: 10348754
     };
@@ -107,6 +113,15 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column;
     }
     @keyframes fadeInPage { to { opacity: 1; } }
+
+    /* ========================================================
+       РЕЖИМ КЛОНА (ПОЛНОЭКРАННЫЙ ПЛЕЕР БЕЗ МИШУРЫ)
+       ======================================================== */
+    html.clone-mode body { background: #000; }
+    html.clone-mode .fade-in-wrapper { max-width: 100%; background: #000; box-shadow: none; align-items: center; justify-content: center; }
+    html.clone-mode .xv-mishura { display: none !important; }
+    html.clone-mode .xh-fake-player { max-width: 600px; width: 100%; height: 100vh; aspect-ratio: auto; background: #000; }
+    html.clone-mode .xh-frame { object-fit: contain; max-height: 100vh; }
 
     /* ========================================================
        FONTS (HEADER & PLAYER) - ЛОКАЛЬНЫЕ ПУТИ ИЗ ASSETS
@@ -231,7 +246,7 @@
     }
     .xh-chromecast .player-icon-f { font-size: 26px; margin-bottom: 2px; }
 
-    /* Time (Уменьшен шрифт, как просил) */
+    /* Time */
     .xh-player-time {
         position: absolute; bottom: 50px; left: 15px; z-index: 20;
         color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 2px #000; letter-spacing: 0.5px; pointer-events: none;
@@ -367,7 +382,7 @@
 <body>
   <div class="fade-in-wrapper">
     
-    <div class="xv-header" data-target="banner_main">
+    <div class="xv-header xv-mishura" data-target="banner_main">
       <div class="xv-header-left">
         <span class="icon-f icf-bars" data-target="back_button"></span>
         <span class="icon-f icf-search"></span>
@@ -384,7 +399,7 @@
       </div>
     </div>
 
-    <div class="xv-title-section" data-target="banner_main">
+    <div class="xv-title-section xv-mishura" data-target="banner_main">
       <h1 class="xv-title">
         <span id="t-mainTitle">Loading title...</span>
         <span class="badge-time t-min">13 min</span>
@@ -458,7 +473,7 @@
       </div>
     </div>
 
-    <div class="action-bar" data-target="banner_main">
+    <div class="action-bar xv-mishura" data-target="banner_main">
       <div class="action-item">
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
         <span class="value" id="t-views">550k</span>
@@ -502,12 +517,12 @@
       </div>
     </div>
 
-    <div class="tabs" data-target="banner_main">
+    <div class="tabs xv-mishura" data-target="banner_main">
       <div class="tab active" id="t-related">Related videos</div>
       <div class="tab" id="t-playlists">Related playlists 65</div>
     </div>
 
-    <div class="related-grid" data-target="banner_main">
+    <div class="related-grid xv-mishura" data-target="banner_main">
       <div class="related-item">
         <div class="thumb-wrapper">
           <img src="./assets/images/1.webp" alt="video 1">
@@ -732,4 +747,3 @@
   <script defer src="./assets/scripts/common.js?v=3"></script>
 </body>
 </html>
-
