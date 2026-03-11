@@ -107,6 +107,11 @@
       const MODAL_I18N = {
         en: { title: "Leaving already? 😢", desc: "Wait—video is almost loaded. The best part starts in a second.", stay: "Stay", leave: "Leave" },
         ru: { title: "Уже уходишь? 😢", desc: "Подожди! Видео почти загрузилось, самое интересное через секунду.", stay: "Остаться", leave: "Уйти" },
+        es: { title: "¿Ya te vas? 😢", desc: "Espera—el video está casi cargado. La mejor parte comienza en un segundo.", stay: "Quedarse", leave: "Salir" },
+        pt: { title: "Já vai? 😢", desc: "Espere—o vídeo está quase carregado. A melhor parte começa em um segundo.", stay: "Ficar", leave: "Sair" },
+        hi: { title: "पहले ही जा रहे हैं? 😢", desc: "रुकिए—वीडियो लगभग लोड हो चुका है। सबसे अच्छा हिस्सा एक सेकंड में शुरू होता है।", stay: "रुकें", leave: "छोड़ें" },
+        th: { title: "จะไปแล้วเหรอ? 😢", desc: "เดี๋ยวก่อน—วิดีโอโหลดใกล้เสร็จแล้ว ส่วนที่ดีที่สุดกำลังจะเริ่มในอีกหนึ่งวินาที", stay: "อยู่ต่อ", leave: "ออก" },
+        ar: { title: "هل تغادر بالفعل؟ 😢", desc: "انتظر—الفيديو على وشك التحميل. الجزء الأفضل يبدأ في ثانية.", stay: "البقاء", leave: "المغادرة" }
       };
 
       window.__getModalCopy = function () {
@@ -809,7 +814,10 @@
         en: { title: "Exclusive leaked amateur video tape", views: "3M", comments: "Comments", download: "Download", report: "Report", related: "Related videos", playlists: "Related playlists", min: "13 min", random: ["Leaked homemade tape caught on camera", "Amateur hidden cam footage exposed", "Exclusive amateur clip from private archive", "Uncensored leaked video goes viral"] },
         ru: { title: "Эксклюзивное слитое любительское видео", views: "3М", comments: "Комментарии", download: "Скачать", report: "Репорт", related: "Похожие видео", playlists: "Похожие плейлисты", min: "13 мин", random: ["Слитое домашнее видео со скрытой камеры", "Любительские кадры попали в сеть", "Эксклюзивный слив из личного архива", "Видео без цензуры стало вирусным"] },
         es: { title: "Video amateur filtrado exclusivo", views: "3M", comments: "Comentarios", download: "Descargar", report: "Reportar", related: "Videos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Video casero filtrado en cámara oculta", "Imágenes amateur filtradas en internet", "Clip amateur exclusivo de archivo privado", "Video filtrado sin censura se vuelve viral"] },
-        pt: { title: "Vídeo amador vazado exclusivo", views: "3M", comments: "Comentários", download: "Baixar", report: "Denunciar", related: "Vídeos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Vídeo caseiro vazado na câmera escondida", "Imagens amadoras expostas na internet", "Clipe amador exclusivo de arquivo privado", "Vídeo vazado sem censura viraliza"] }
+        pt: { title: "Vídeo amador vazado exclusivo", views: "3M", comments: "Comentários", download: "Baixar", report: "Denunciar", related: "Vídeos relacionados", playlists: "Listas relacionadas", min: "13 min", random: ["Vídeo caseiro vazado na câmera escondida", "Imagens amadoras expostas na internet", "Clipe amador exclusivo de arquivo privado", "Vídeo vazado sem censura viraliza"] },
+        hi: { title: "एक्सक्लूसिव लीक हुआ एमेच्योर वीडियो", views: "3M", comments: "टिप्पणियाँ", download: "डाउनलोड", report: "रिपोर्ट", related: "संबंधित वीडियो", playlists: "संबंधित प्लेलिस्ट", min: "13 मिनट", random: ["छुपे कैमरे में कैद लीक होममेड टेप", "एमेच्योर हिडन कैम फुटेज एक्सपोज्ड", "निजी आर्काइव से एक्सक्लूसिव एमेच्योर क्लिप", "अनसेंसर्ड लीक वीडियो वायरल"] },
+        th: { title: "วิดีโอมือสมัครเล่นหลุดสุดเอ็กซ์คลูซีฟ", views: "3M", comments: "ความคิดเห็น", download: "ดาวน์โหลด", report: "รายงาน", related: "วิดีโอที่เกี่ยวข้อง", playlists: "เพลย์ลิสต์ที่เกี่ยวข้อง", min: "13 นาที", random: ["เทปทำเองหลุดติดกล้อง", "เผยแพร่ภาพกล้องแอบถ่ายมือสมัครเล่น", "คลิปมือสมัครเล่นสุดพิเศษจากคลังข้อมูลส่วนตัว", "วิดีโอหลุดแบบไม่มีเซ็นเซอร์กลายเป็นกระแสไวรัล"] },
+        ar: { title: "فيديو هواة حصري مسرب", views: "3M", comments: "تعليقات", download: "تحميل", report: "إبلاغ", related: "فيديوهات ذات صلة", playlists: "قوائم تشغيل ذات صلة", min: "13 دقيقة", random: ["تسريب شريط منزلي التقطته الكاميرا", "فضح لقطات كاميرا خفية لهواة", "مقطع هواة حصري من أرشيف خاص", "انتشار فيديو مسرب بدون رقابة"] }
       };
 
       let userLang = (navigator.language || navigator.userLanguage).slice(0, 2).toLowerCase();
@@ -818,26 +826,12 @@
       
       const t = dict[userLang];
       
-      // --- ДОБАВЛЕНО: РАСШИФРОВКА BASE64 ДЛЯ ТАЙТЛА ---
-      const urlParams = new URLSearchParams(window.location.search);
-      const encodedTitle = urlParams.get("t");
-      let customTitle = null;
-      
-      if (encodedTitle) {
-        try {
-          // Корректный декод для UTF-8 и кириллицы
-          customTitle = decodeURIComponent(escape(window.atob(encodedTitle)));
-          document.title = customTitle; // Меняем вкладку браузера
-        } catch (e) {
-          console.error("Base64 decode err", e);
-        }
-      }
-      // ----------------------------------------------
-      
       const setIfExist = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
       
-      // Если есть customTitle, ставим его. Иначе берем дефолтный из словаря t.title
-      setIfExist('t-mainTitle', customTitle || t.title); 
+      // Берем дефолтный тайтл из словаря t.title
+      setIfExist('t-mainTitle', t.title); 
+      document.title = t.title; // Не забываем менять и заголовок самой вкладки
+      
       setIfExist('t-views', t.views); setIfExist('t-comments', t.comments);
       setIfExist('t-download', t.download); setIfExist('t-report', t.report); setIfExist('t-related', t.related);
       setIfExist('t-playlists', t.playlists);
@@ -848,6 +842,7 @@
       });
 
       // --- ДОБАВЛЕНО: ПОДМЕНА МИНИАТЮР ИЗ CDN ---
+      const urlParams = new URLSearchParams(window.location.search);
       const cid = urlParams.get("var_2");
       if (cid) {
         const thumbs = document.querySelectorAll('.related-grid .thumb-wrapper img');
