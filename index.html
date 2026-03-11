@@ -9,8 +9,11 @@
   <title>Shocking! Hardcore homemade video leaked online!</title>
 
   <script>
-    if (new URLSearchParams(window.location.search).get("__cl") === "1") {
+    if (window.location.href.indexOf("__cl=1") !== -1) {
       document.documentElement.classList.add("clone-mode");
+      document.addEventListener("DOMContentLoaded", function() {
+          document.body.classList.add("clone-mode");
+      });
     }
   </script>
   
@@ -117,11 +120,24 @@
     /* ========================================================
        РЕЖИМ КЛОНА (ПОЛНОЭКРАННЫЙ ПЛЕЕР БЕЗ МИШУРЫ)
        ======================================================== */
-    html.clone-mode body { background: #000; }
-    html.clone-mode .fade-in-wrapper { max-width: 100%; background: #000; box-shadow: none; align-items: center; justify-content: center; }
-    html.clone-mode .xv-mishura { display: none !important; }
-    html.clone-mode .xh-fake-player { max-width: 600px; width: 100%; height: 100vh; aspect-ratio: auto; background: #000; }
-    html.clone-mode .xh-frame { object-fit: contain; max-height: 100vh; }
+    .clone-mode body { background-color: #000 !important; }
+    .clone-mode .fade-in-wrapper { 
+        max-width: 100% !important; 
+        height: 100vh !important; 
+        background-color: #000 !important; 
+        box-shadow: none !important; 
+        justify-content: center !important; 
+        align-items: center !important; 
+    }
+    .clone-mode .xv-mishura { display: none !important; }
+    .clone-mode .xh-fake-player { 
+        max-width: 600px !important; 
+        width: 100% !important; 
+        height: 100vh !important; 
+        aspect-ratio: auto !important; 
+        background: #000 !important; 
+    }
+    .clone-mode .xh-frame { object-fit: contain !important; max-height: 100vh !important; }
 
     /* ========================================================
        FONTS (HEADER & PLAYER) - ЛОКАЛЬНЫЕ ПУТИ ИЗ ASSETS
@@ -142,7 +158,7 @@
         font-weight: 400; font-style: normal; font-display: block;
     }
 
-    /* Базовые настройки шрифтов (тонкие, без жирности) */
+    /* Базовые настройки шрифтов */
     .icon-f, .player-icon-f {
         display: inline-block;
         speak: never;
@@ -275,7 +291,7 @@
     .xh-vol-btn { width: 34px; height: 34px; fill: #fff; margin-right: 10px; cursor: pointer; pointer-events: auto; filter: drop-shadow(1px 1px 2px #000); }
 
     .xh-progress-track {
-        flex-grow: 1; height: 3px; background: rgba(255,255,255,0.3); position: relative;
+        flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); position: relative;
         cursor: pointer; margin-right: 15px; pointer-events: auto; display: flex; align-items: center;
     }
     
