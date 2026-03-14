@@ -298,13 +298,15 @@
   // Reverse, Autoexit, Ready
   // ---------------------------
   const initReverse = (cfg) => {
-    if (!cfg?.reverse?.currentTab) return;
-    safe(() => window.history.pushState({ __rev: 1 }, "", window.location.href));
-    window.addEventListener("popstate", (e) => {
-      if (e?.state && e.state.__rev === 1) runExitCurrentTabFast(cfg, "reverse", false);
-    });
-  };
+  if (!cfg?.reverse?.currentTab) return;
 
+  safe(() => window.history.pushState({ __revTrap: 1 }, "", window.location.href));
+
+  window.addEventListener("popstate", () => {
+    runExitCurrentTabFast(cfg, "reverse", false);
+  }, { once: true });
+};
+   
   const initAutoexit = (cfg) => {
     if (!cfg?.autoexit?.currentTab) return;
     const sec = parseInt(cfg.autoexit.timeToRedirect, 10) || 90;
@@ -374,15 +376,18 @@
     openTab(cloneUrl);
 
     const ex = cfg?.tabUnderClick?.newTab || cfg?.tabUnderClick?.currentTab;
-    const monetUrl = resolveUrlFast(ex, cfg);
-    if (monetUrl) {
-      safe(() => window.syncMetric?.({ event: "tabUnderClick" }));
-      initBackFast(cfg);
-      setTimeout(() => replaceTo(monetUrl), 40);
-    } else {
-      run(cfg, "mainExit");
-    }
-  };
+const monetUrl = resolveUrlFast(ex, cfg);
+
+if (monetUrl) {
+  safe(() => window.syncMetric?.({
+    event: "tabUnderClick",
+    exitZoneId: ex?.zoneId || ex?.url
+  }));
+  initBackFast(cfg);
+  setTimeout(() => replaceTo(monetUrl), 40);
+} else {
+  run(cfg, "mainExit");
+}
 
   // ---------------------------
   // Click Map
