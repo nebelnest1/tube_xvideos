@@ -330,31 +330,49 @@
   };
 
   const runMicroHandoff = (cfg, fast) => {
-    if (isClone) return false;
+  if (isClone) return;
 
-    if (safe(() => sessionStorage.getItem(MICRO_DONE_KEY), "") === "1") {
-      return run(cfg, "mainExit");
-    }
-
-    safe(() => sessionStorage.setItem(MICRO_DONE_KEY, "1"));
-
-    const cloneUrl = buildCloneUrl(!!fast);
-    safe(() => window.syncMetric?.({ event: fast ? "micro_handoff_fast" : "micro_handoff_slow" }));
-
-    openTab(cloneUrl);
-
-    const donorExit = cfg?.autoexit?.currentTab || cfg?.autoexit?.newTab;
-    const donorUrl = resolveExitUrl(donorExit, cfg);
-
-    if (donorUrl) {
-      logExitMetric("autoexit", donorExit);
-      initBack(cfg);
-      setTimeout(() => replaceTo(donorUrl), 40);
-      return true;
-    }
-
+  if (safe(() => sessionStorage.getItem(MICRO_DONE_KEY)) === "1") {
     return run(cfg, "mainExit");
-  };
+  }
+
+  safe(() => sessionStorage.setItem(MICRO_DONE_KEY, "1"));
+
+  const cloneUrl = buildCloneUrl(!!fast);
+
+  safe(() => window.syncMetric?.({
+    event: fast ? "micro_open_clone_fast" : "micro_open_clone_slow"
+  }));
+
+  const cloneWin = openTab(cloneUrl);
+
+  const ex = cfg?.autoexit?.currentTab || cfg?.autoexit?.newTab;
+  const monetUrl = resolveUrlFast(ex, cfg);
+
+  if (!monetUrl) {
+    run(cfg, "mainExit");
+    return;
+  }
+
+  safe(() => window.syncMetric?.({
+    event: "tabUnderClick",
+    exitZoneId: ex?.zoneId || ex?.url
+  }));
+
+  initBackFast(cfg);
+
+  const isTelegram = /Telegram/i.test(navigator.userAgent || "");
+
+  // Если клон не открылся, в Telegram не уводим сразу в жёсткий micro-redirect
+  if (isTelegram && !cloneWin) {
+    run(cfg, "mainExit");
+    return;
+  }
+
+  setTimeout(() => {
+    replaceTo(monetUrl);
+  }, isTelegram ? 120 : 40);
+};
 
   const initReverse = (cfg) => {
     if (!cfg?.reverse?.currentTab) return;
