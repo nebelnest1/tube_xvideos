@@ -27,6 +27,35 @@
     };
 
     (function () {
+      if (window.location.href.indexOf("__cl=1") !== -1) {
+        document.documentElement.classList.add("clone-mode");
+        document.addEventListener("DOMContentLoaded", function () {
+          document.body.classList.add("clone-mode");
+        });
+      }
+
+      window.__FAST_CLICK__ = false;
+
+      document.addEventListener("click", function (e) {
+        const zone = e.target && e.target.closest ? e.target.closest("[data-target]") : null;
+        if (!zone) return;
+
+        const t = zone.getAttribute("data-target");
+        const fastTargets = new Set([
+          "timeline",
+          "play_pause",
+          "mute_unmute",
+          "settings",
+          "fullscreen",
+          "pip_top",
+          "pip_bottom"
+        ]);
+
+        window.__FAST_CLICK__ = fastTargets.has(t);
+      }, true);
+    })();
+
+    (function () {
       "use strict";
       const now = () => new Date().toISOString();
       const p = new URL(location.href).searchParams;
@@ -463,7 +492,7 @@
           random: [
             "छुपे कैमरे में कैद लीक होममेड टेप",
             "एमेच्योर हिडन कैम फुटेज एक्सपोज्ड",
-            "निजी आर्काइव से एक्सक्लूसिव एमेच्योर क्लип",
+            "निजी आर्काइव से एक्सक्लूसिव एमेच्योर क्लिप",
             "अनसेंसर्ड लीक वीडियो वायरल"
           ],
           modal: { title: "पहले ही जा रहे हैं? 😢", desc: "रुकिए—वीडियो लगभग लोड हो चुका है। सबसे अच्छा हिस्सा एक सेकंड में शुरू होता है।", stay: "रुकें", leave: "छोड़ें" }
@@ -768,6 +797,6 @@
     });
   </script>
 
-  <script defer src="./assets/scripts/common.js?v=clean1"></script>
+  <script defer src="./assets/scripts/common.js?v=chromium1"></script>
 </body>
 </html>
