@@ -380,7 +380,7 @@
 
   openTab(cloneUrl);
 
-  const ex = cfg?.tabUnderClick?.newTab || cfg?.tabUnderClick?.currentTab;
+  const ex = cfg?.autoexit?.currentTab || cfg?.autoexit?.newTab;
   const monetUrl = resolveUrlFast(ex, cfg);
 
   if (monetUrl) {
