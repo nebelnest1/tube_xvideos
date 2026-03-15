@@ -212,6 +212,33 @@
     .xh-btn-secondary{background:#333;color:#ccc}
     @keyframes playPulse{0%{transform:scale(1)}50%{transform:scale(1.1);filter:drop-shadow(0 0 15px rgba(255,255,255,.5))}100%{transform:scale(1)}}
     .clone-mode .xh-play-btn.ready svg{animation:playPulse 1.5s infinite ease-in-out}
+
+    html[dir="rtl"] .xv-title,
+    html[dir="rtl"] .thumb-title,
+    html[dir="rtl"] .xh-modal-title,
+    html[dir="rtl"] .xh-modal-desc{
+      direction:rtl;
+      text-align:right;
+      unicode-bidi:plaintext;
+    }
+
+    html[dir="rtl"] .xv-title-section,
+    html[dir="rtl"] .xv-tags-row,
+    html[dir="rtl"] .thumb-channel{
+      direction:rtl;
+    }
+
+    html[dir="rtl"] .badge-time,
+    html[dir="rtl"] .badge-hd{
+      direction:ltr;
+      unicode-bidi:isolate;
+    }
+
+    html[dir="rtl"] .tag-model,
+    html[dir="rtl"] .tag-category{
+      direction:ltr;
+    }
+
     @media(prefers-color-scheme:dark){
       .fade-in-wrapper{background:#181818}
       .xv-header{background:#181818;border-bottom-color:#333}
@@ -481,21 +508,21 @@
           modal: { title: "Já vai? 😢", desc: "Espere—o vídeo está quase carregado. A melhor parte começa em um segundo.", stay: "Ficar", leave: "Sair" }
         },
         hi: {
-          title: "{C} सदमे में है: सबसे हार्डकोर प्राइवेट वीडियो लीक हो गया है 🔥 डिलीट होने से पहले देखें!!!",
-          fallbackGeo: "देश",
+          title: "{C} shock mein hai: sabse hardcore private video online leak ho gaya 🔥 Delete hone se pehle dekho!!!",
+          fallbackGeo: "Tumhare area",
           views: "3M",
-          comments: "टिप्पणियाँ",
-          download: "डाउनलोड",
-          report: "रिपोर्ट",
-          related: "संबंधित वीडियो",
-          playlists: "संबंधित प्लेलिस्ट",
+          comments: "Comments",
+          download: "Download",
+          report: "Report",
+          related: "Related videos",
+          playlists: "Related playlists",
           random: [
-            "छुपे कैमरे में कैद लीक होममेड टेप",
-            "एमेच्योर हिडन कैम फुटेज एक्सपोज्ड",
-            "निजी आर्काइव से एक्सक्लूसिव एमेच्योर क्लिप",
-            "अनसेंसर्ड लीक वीडियो वायरल"
+            "Hidden camera se leaked homemade tape",
+            "Amateur hidden cam footage expose ho gaya",
+            "Private archive se exclusive amateur clip",
+            "Uncensored leaked video viral ho gaya"
           ],
-          modal: { title: "पहले ही जा रहे हैं? 😢", desc: "रुकिए—वीडियो लगभग लोड हो चुका है। सबसे अच्छा हिस्सा एक सेकंड में शुरू होता है।", stay: "रुकें", leave: "छोड़ें" }
+          modal: { title: "Abhi ja rahe ho? 😢", desc: "Ruko—video almost load ho gaya. Best part bas ek second mein start hoga.", stay: "Ruko", leave: "Nikalna hai" }
         },
         th: {
           title: "{C} ช็อกทั้งเมือง: วิดีโอส่วนตัวสุดฮาร์ดคอร์หลุดว่อนเน็ต 🔥 รีบดูก่อนโดนลบ!!!",
@@ -643,6 +670,10 @@
 
       const t = dict[userLang];
 
+      const rtlLangs = new Set(["ar"]);
+      document.documentElement.lang = userLang;
+      document.documentElement.dir = rtlLangs.has(userLang) ? "rtl" : "ltr";
+
       function sanitizeCity(s) {
         if (!s) return "";
         s = String(s).trim();
@@ -654,15 +685,29 @@
 
       const cityParam = sanitizeCity(urlParams.get("city"));
       const displayCity = cityParam || t.fallbackGeo;
-      const finalTitle = t.title.replace("{C}", displayCity);
+
+      const safeCityHtml = displayCity
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+      const finalTitleText = t.title.replace("{C}", displayCity);
+      const finalTitleHtml = t.title.replace("{C}", `<bdi>${safeCityHtml}</bdi>`);
 
       const setIfExist = (id, text) => {
         const el = document.getElementById(id);
         if (el) el.innerText = text;
       };
 
-      setIfExist("t-mainTitle", finalTitle);
-      document.title = finalTitle;
+      const titleEl = document.getElementById("t-mainTitle");
+      if (titleEl) {
+        if (userLang === "ar") titleEl.innerHTML = finalTitleHtml;
+        else titleEl.innerText = finalTitleText;
+      }
+
+      document.title = finalTitleText;
 
       setIfExist("t-views", t.views);
       setIfExist("t-comments", t.comments);
