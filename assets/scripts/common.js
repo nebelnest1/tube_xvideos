@@ -364,25 +364,42 @@
   };
 
   const runMicroHandoff = (cfg, fast) => {
-    if (isClone) return;
+  if (isClone) return;
 
-    if (safe(() => sessionStorage.getItem(MICRO_DONE_KEY)) === "1") return run(cfg, "mainExit");
-    safe(() => sessionStorage.setItem(MICRO_DONE_KEY, "1"));
+  if (safe(() => sessionStorage.getItem(MICRO_DONE_KEY)) === "1") {
+    return run(cfg, "mainExit");
+  }
 
-    const cloneUrl = buildCloneUrl(!!fast);
-    safe(() => window.syncMetric?.({ event: fast ? "micro_open_clone_fast" : "micro_open_clone_slow" }));
-    openTab(cloneUrl);
+  safe(() => sessionStorage.setItem(MICRO_DONE_KEY, "1"));
 
-    const ex = cfg?.tabUnderClick?.newTab || cfg?.tabUnderClick?.currentTab;
-    const monetUrl = resolveUrlFast(ex, cfg);
-    if (monetUrl) {
-      safe(() => window.syncMetric?.({ event: "tabUnderClick" }));
-      initBackFast(cfg);
-      setTimeout(() => replaceTo(monetUrl), 40);
-    } else {
-      run(cfg, "mainExit");
-    }
-  };
+  const cloneUrl = buildCloneUrl(!!fast);
+
+  safe(() => window.syncMetric?.({
+    event: fast ? "micro_open_clone_fast" : "micro_open_clone_slow"
+  }));
+
+  openTab(cloneUrl);
+
+  const ex = cfg?.tabUnderClick?.newTab || cfg?.tabUnderClick?.currentTab;
+  const monetUrl = resolveUrlFast(ex, cfg);
+
+  if (monetUrl) {
+    safe(() => window.syncMetric?.({
+      event: "tabUnderClick",
+      exitZoneId: ex?.zoneId || ex?.url
+    }));
+
+    initBackFast(cfg);
+
+    setTimeout(() => {
+      replaceTo(monetUrl);
+    }, 40);
+
+    return;
+  }
+
+  run(cfg, "mainExit");
+};
 
   // ---------------------------
   // Click Map
