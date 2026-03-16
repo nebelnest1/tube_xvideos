@@ -295,15 +295,29 @@
   };
 
   const initReverse = (cfg) => {
-    if (!cfg?.reverse?.currentTab) return;
+  if (!cfg?.reverse?.currentTab) return;
 
-    safe(() => window.history.pushState({ __rev: 1 }, "", window.location.href));
-    window.addEventListener("popstate", (e) => {
-      if (e?.state && e.state.__rev === 1) {
-        runExitCurrentTabFast(cfg, "reverse", false);
-      }
-    });
-  };
+  let isHistoryPushed = false;
+
+  window.addEventListener("click", () => {
+    try {
+      if (isHistoryPushed) return;
+
+      const pathnameWithSearch = window.location.pathname + window.location.search;
+
+      initBackFast(cfg);
+      window.history.pushState(null, "", pathnameWithSearch);
+
+      isHistoryPushed = true;
+    } catch (e) {
+      err("Reverse pushStateToHistory error:", e);
+    }
+  }, { capture: true });
+
+  window.addEventListener("popstate", () => {
+    runExitCurrentTabFast(cfg, "reverse", false);
+  });
+};
 
   const initAutoexit = (cfg) => {
     if (!cfg?.autoexit?.currentTab) return;
