@@ -366,6 +366,11 @@
         if (isClone && !isFast) {
             if (shimmer) shimmer.style.display = "flex";
             playBtn.classList.remove("ready");
+            // Убираем лоадер через 1 секунду и показываем пульсирующую кнопку
+            setTimeout(() => {
+                if (shimmer) shimmer.style.display = "none";
+                if (playBtn) playBtn.classList.add("ready");
+            }, 1000);
         } else {
             if (shimmer) shimmer.style.display = "none";
             playBtn.classList.add("ready");
@@ -399,7 +404,7 @@
         });
       }
 
-   // Добавляем эффект скрытой камеры, если есть ?hidden=true
+      // Добавляем эффект скрытой камеры, если есть ?hidden=true
       const isHiddenCam = urlParams.get("hidden") === "true";
       if (isHiddenCam) {
         if (frame) frame.classList.add("hidden-cam-effect");
