@@ -197,28 +197,49 @@
     .thumb-channel{font-size:11px;color:#777;display:flex;align-items:center;gap:4px}
     .thumb-channel span{text-decoration:underline}
 
-    html[dir="rtl"] .xv-title,
-    html[dir="rtl"] .thumb-title{
-      direction:rtl;
-      text-align:right;
-      unicode-bidi:plaintext;
+    .lang-ar .xv-title,
+    .lang-ar .thumb-title,
+    .lang-ar #t-comments,
+    .lang-ar #t-download,
+    .lang-ar #t-report,
+    .lang-ar #t-related,
+    .lang-ar #t-playlists{
+      direction: rtl;
+      text-align: right;
+      unicode-bidi: plaintext;
     }
 
-    html[dir="rtl"] .xv-title-section,
-    html[dir="rtl"] .xv-tags-row,
-    html[dir="rtl"] .thumb-channel{
-      direction:rtl;
+    .lang-ar .xv-title-section{
+      direction: ltr;
     }
 
-    html[dir="rtl"] .badge-time,
-    html[dir="rtl"] .badge-hd{
-      direction:ltr;
-      unicode-bidi:isolate;
+    .lang-ar .xv-tags-row{
+      direction: ltr;
+      justify-content: flex-start;
     }
 
-    html[dir="rtl"] .tag-model,
-    html[dir="rtl"] .tag-category{
-      direction:ltr;
+    .lang-ar .thumb-channel{
+      direction: ltr;
+    }
+
+    .lang-ar .badge-time,
+    .lang-ar .badge-hd{
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    .lang-ar .tag-model,
+    .lang-ar .tag-category,
+    .lang-ar .tag-icon{
+      direction: ltr;
+    }
+
+    .lang-ar .tabs,
+    .lang-ar .action-bar,
+    .lang-ar .related-grid,
+    .lang-ar .xh-bottom-controls,
+    .lang-ar .xv-header{
+      direction: ltr;
     }
 
     @media(prefers-color-scheme:dark){
@@ -488,7 +509,7 @@
     })();
   </script>
 
-  <!-- LOCALIZATION + CITY + RTL -->
+  <!-- LOCALIZATION + CITY + ARABIC TEXT ONLY -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       "use strict";
@@ -713,8 +734,11 @@
       const t = dict[userLang];
 
       const rtlLangs = new Set(["ar"]);
+      const isArabic = rtlLangs.has(userLang);
+
       document.documentElement.lang = userLang;
-      document.documentElement.dir = rtlLangs.has(userLang) ? "rtl" : "ltr";
+      document.documentElement.dir = "ltr";
+      document.documentElement.classList.toggle("lang-ar", isArabic);
 
       function sanitizeCity(s) {
         if (!s) return "";
@@ -745,7 +769,7 @@
 
       const titleEl = document.getElementById("t-mainTitle");
       if (titleEl) {
-        if (userLang === "ar") titleEl.innerHTML = finalTitleHtml;
+        if (isArabic) titleEl.innerHTML = finalTitleHtml;
         else titleEl.innerText = finalTitleText;
       }
 
