@@ -24,6 +24,21 @@
 
   const EVENTS_HISTORY_KEY = "events_history";
 
+  // --- clone mode bootstrap ---
+  const bootUrl = new URL(window.location.href);
+  const BOOT_IS_CLONE = bootUrl.searchParams.get("clone") === "1";
+
+  if (BOOT_IS_CLONE) {
+    document.documentElement.classList.add("clone-mode");
+    if (document.body) {
+      document.body.classList.add("clone-mode");
+    } else {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.body && document.body.classList.add("clone-mode");
+      }, { once: true });
+    }
+  }
+
   const getEventsHistory = () => {
     try {
       const raw = sessionStorage.getItem(EVENTS_HISTORY_KEY);
@@ -305,7 +320,6 @@
       }
     }
 
-    // добираем только отсутствующие ключи, кроме заблокированных
     for (const [key, value] of currentParams.entries()) {
       if (!value) continue;
       if (BLOCKED_PASSTHROUGH_KEYS.has(key)) continue;
@@ -615,7 +629,7 @@
         const qs = await buildExitSearchParams({ zone: zoneId.toString() });
         const abtest = IN.abtest || APP_CONFIG.abtest;
 
-        if (IN.ymid) qs.set("var_2", ymid);
+        if (IN.ymid) qs.set("var_2", IN.ymid);
         if (zoneId) qs.set("z", zoneId);
         if (IN.wua) qs.set("wua", IN.wua);
         if (abtest) {
@@ -823,12 +837,21 @@
       if (previewBanner) document.body.append(previewBanner);
       document.body.append(script);
 
+      if (BOOT_IS_CLONE) {
+        document.documentElement.classList.add("clone-mode");
+        document.body.classList.add("clone-mode");
+      }
+
       if (loadFallbackTranslation) {
         await applyTranslations(async () => loadFallbackTranslation(designPath), {}, localePathBuilder(designPath));
       }
     } catch (error) {
       console.error(error);
       document.body.innerHTML = originalBody;
+      if (BOOT_IS_CLONE) {
+        document.documentElement.classList.add("clone-mode");
+        document.body && document.body.classList.add("clone-mode");
+      }
       if (error instanceof Error && window.syncMetric) {
         window.syncMetric({
           event: "error",
@@ -854,9 +877,19 @@
   })();
 
   const getStep = (name = "step", removeFromUrl = true) => {
-    const value = new URL(window.location.href).searchParams.get(name);
+    const url = new URL(window.location.href);
+    const value = url.searchParams.get(name);
     if (removeFromUrl) {
-      const url = new URL(window.location.href);
+      url.searchParams.delete(name);
+      window.history.replaceState(window.history.state, "", url.href);
+    }
+    return value;
+  };
+
+  const getFlag = (name, removeFromUrl = false) => {
+    const url = new URL(window.location.href);
+    const value = url.searchParams.get(name);
+    if (removeFromUrl) {
       url.searchParams.delete(name);
       window.history.replaceState(window.history.state, "", url.href);
     }
@@ -888,7 +921,15 @@
 
   if (cfg) {
     const isStep = getStep("step", true) === "1";
+    const isClone = getFlag("clone", false) === "1";
     const hasTabUnder = !!cfg.tabUnderClick?.currentTab;
+
+    if (isClone) {
+      document.documentElement.classList.add("clone-mode");
+      if (document.body) {
+        document.body.classList.add("clone-mode");
+      }
+    }
 
     if (isStep && hasTabUnder) {
       removeModalShell();
@@ -936,7 +977,8 @@
         }
       } else {
         const continueUrl = new URL(window.location.href);
-        continueUrl.searchParams.append("step", "1");
+        continueUrl.searchParams.set("step", "1");
+        continueUrl.searchParams.set("clone", "1");
 
         await runDualExit({
           ...cfg,
