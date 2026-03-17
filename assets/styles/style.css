@@ -280,11 +280,9 @@ html.clone-mode,
 
 /* top settings icon = same as player icon */
 .vp-hicon-player .player-icon-f {
-  font-size: 30px;
-  color: #111;
-  text-shadow: none;
+  font-size: 26px;   /* было ~16 → стало как в плеере */
   line-height: 1;
-  display: inline-block;
+  display: block;
 }
 
 /* title block */
