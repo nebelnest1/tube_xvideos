@@ -652,16 +652,16 @@
         frame.classList.add("hidden-cam-effect");
       }
 
-      // --- ДОБАВЛЕНА ЛОГИКА COMEBACKER (МИГАНИЕ РАНДОМНЫХ ТАЙТЛОВ ИЗ 3 ВАРИАНТОВ + ИКОНКА) ---
+      // --- ДОБАВЛЕНА ЛОГИКА COMEBACKER (ИДЕАЛЬНЫЙ СЦЕНАРИЙ С ВИДИМОСТЬЮ) ---
       let comebackerTimer;
       let isBlinking = false;
+      let hasClickedPlay = false; // Флаг, что юзер нажал на плей
       const originalTitle = document.title;
 
       function startComebacker() {
         if (isBlinking) return;
         isBlinking = true;
         
-        // Берем массив из 3х фраз для текущего языка (или дефолт англ)
         const msgs = t.comebackTitles || ["🎁 Bonus is waiting for you!", "💰 Claim your reward", "🔥 Bonus is ready"];
         let msgIndex = 0;
 
@@ -671,20 +671,17 @@
           iconLink.rel = 'icon';
           document.head.appendChild(iconLink);
         }
-        const originalIcon = iconLink.href || "";
+        
         const alertIcon = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>";
 
-        // Иконку ставим один раз жестко
         iconLink.href = alertIcon;
-
-        // Начинаем крутить только новые фразы, без старого тайтла
         document.title = msgs[msgIndex];
         msgIndex = (msgIndex + 1) % msgs.length;
 
         comebackerTimer = setInterval(() => {
           document.title = msgs[msgIndex];
           msgIndex = (msgIndex + 1) % msgs.length;
-        }, 1500); // 1.5 секунды на каждую новую фразу, чтобы читалось
+        }, 1500); 
       }
 
       function stopComebacker() {
@@ -693,20 +690,24 @@
         isBlinking = false;
         document.title = originalTitle;
         let iconLink = document.querySelector("link[rel~='icon']");
-        if (iconLink) iconLink.href = ""; // Возвращаем пустоту или дефолт
+        if (iconLink) iconLink.href = ""; // Скидываем иконку на дефолт
       }
 
-      // Вешаем слушатель на все триггеры плеера
+      // Слушаем клик: просто ставим метку, НО ничего не меняем на странице!
       const playElements = document.querySelectorAll('.pl-main-play-trigger');
       playElements.forEach(el => {
         el.addEventListener('click', () => {
-          setTimeout(startComebacker, 1000); // Задержка перед стартом смены тайтлов
+          hasClickedPlay = true; 
         });
       });
 
-      // Тормозим мигание, возвращаем оригинальный тайтл, если юзер вернулся на вкладку
+      // Слушаем статус вкладки: активна или в фоне
       document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) {
+        if (document.hidden && hasClickedPlay) {
+          // Если юзер кликал по плееру и вкладка ушла в фон (поп-андер или переход)
+          startComebacker();
+        } else if (!document.hidden) {
+          // Если юзер вернулся
           stopComebacker();
         }
       });
