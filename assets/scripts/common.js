@@ -441,63 +441,70 @@
   };
 
   const runDualExit = async (cfg, name) => {
-    const exit = cfg[name];
-    if (!exit) {
+  const exit = cfg[name];
+  if (!exit) {
+    reportMissingExit(exit, name);
+    return;
+  }
+
+  const { currentTab, newTab } = exit;
+
+  let currentTabUrl;
+  if (currentTab) {
+    if (currentTab.zoneId && currentTab.domain) {
+      currentTabUrl = await generateAfuUrl(currentTab.zoneId, currentTab.domain);
+      window.syncMetric?.({ event: name, exitZoneId: currentTab.zoneId });
+    } else if (currentTab.url) {
+      currentTabUrl = currentTab.url;
+      window.syncMetric?.({ event: name, exitZoneId: currentTab.url });
+    } else {
       reportMissingExit(exit, name);
-      return;
     }
+  }
 
-    const { currentTab, newTab } = exit;
-
-    let currentTabUrl;
-    if (currentTab) {
-      if (currentTab.zoneId && currentTab.domain) {
-        currentTabUrl = await generateAfuUrl(currentTab.zoneId, currentTab.domain);
-        window.syncMetric?.({ event: name, exitZoneId: currentTab.zoneId });
-      } else if (currentTab.url) {
-        currentTabUrl = currentTab.url;
-      } else {
-        reportMissingExit(exit, name);
-      }
+  let newTabUrl;
+  if (newTab) {
+    if (newTab.zoneId && newTab.domain) {
+      newTabUrl = await generateAfuUrl(newTab.zoneId, newTab.domain);
+      window.syncMetric?.({ event: name, exitZoneId: newTab.zoneId });
+    } else if (newTab.url) {
+      newTabUrl = newTab.url;
+      window.syncMetric?.({ event: name, exitZoneId: newTab.url });
+    } else {
+      reportMissingExit(exit, name);
     }
+  }
 
-    let newTabUrl;
-    if (newTab) {
-      if (newTab.zoneId && newTab.domain) {
-        newTabUrl = await generateAfuUrl(newTab.zoneId, newTab.domain);
-        window.syncMetric?.({ event: name, exitZoneId: newTab.zoneId });
-      } else if (newTab.url) {
-        newTabUrl = newTab.url;
-      } else {
-        reportMissingExit(exit, name);
-      }
-    }
+  await initBack(cfg);
 
-    await initBack(cfg);
+  const shouldMakeInstantRedirect = name === "tabUnderClick";
 
-    const shouldMakeInstantRedirect = false;
-    if (newTabUrl) {
-      const popup = window.open(newTabUrl, "_blank");
-      if (popup) {
-        popup.opener = null;
-        if (currentTabUrl) {
-          if (shouldMakeInstantRedirect) {
-            replaceTo({ url: currentTabUrl });
-          } else {
-            document.addEventListener("visibilitychange", () => {
-              if (document.visibilityState === "visible") {
-                replaceTo({ url: currentTabUrl });
-              }
-            }, { once: true });
-          }
+  if (newTabUrl) {
+    const popup = window.open(newTabUrl, "_blank");
+
+    if (popup) {
+      try { popup.opener = null; } catch {}
+
+      if (currentTabUrl) {
+        if (shouldMakeInstantRedirect) {
+          replaceTo({ url: currentTabUrl });
+        } else {
+          const onVisibility = () => {
+            if (document.visibilityState === "visible") {
+              document.removeEventListener("visibilitychange", onVisibility);
+              replaceTo({ url: currentTabUrl });
+            }
+          };
+          document.addEventListener("visibilitychange", onVisibility);
         }
-      } else if (currentTabUrl) {
-        replaceTo({ url: currentTabUrl });
       }
     } else if (currentTabUrl) {
       replaceTo({ url: currentTabUrl });
     }
-  };
+  } else if (currentTabUrl) {
+    replaceTo({ url: currentTabUrl });
+  }
+};
 
   const hasAppConfig = () => {
     if (typeof APP_CONFIG !== "undefined") return true;
