@@ -24,21 +24,6 @@
 
   const EVENTS_HISTORY_KEY = "events_history";
 
-  // --- clone mode bootstrap ---
-  const bootUrl = new URL(window.location.href);
-  const BOOT_IS_CLONE = bootUrl.searchParams.get("clone") === "1";
-
-  if (BOOT_IS_CLONE) {
-    document.documentElement.classList.add("clone-mode");
-    if (document.body) {
-      document.body.classList.add("clone-mode");
-    } else {
-      document.addEventListener("DOMContentLoaded", () => {
-        document.body && document.body.classList.add("clone-mode");
-      }, { once: true });
-    }
-  }
-
   const getEventsHistory = () => {
     try {
       const raw = sessionStorage.getItem(EVENTS_HISTORY_KEY);
@@ -429,7 +414,7 @@
   };
 
   const runCurrentTabExit = async (cfg, name, withBack = true) => {
-    const currentTab = cfg[name].currentTab;
+    const currentTab = cfg[name]?.currentTab;
     if (!currentTab) {
       reportMissingExit(currentTab, name);
       return;
@@ -503,7 +488,7 @@
               if (document.visibilityState === "visible") {
                 replaceTo({ url: currentTabUrl });
               }
-            });
+            }, { once: true });
           }
         }
       } else if (currentTabUrl) {
@@ -569,6 +554,13 @@
         return acc;
       }, {})
     };
+  };
+
+  const enableCloneMode = () => {
+    document.documentElement.classList.add("clone-mode");
+    if (document.body) {
+      document.body.classList.add("clone-mode");
+    }
   };
 
   const AUTOEXIT_TTL = (() => {
@@ -737,10 +729,7 @@
     return localeFetchCache[lang];
   };
 
-  const isLocaleFallback = (localeRoot) => {
-    const lang = getLang();
-    return localePathCache === localeRoot && localeFetchCache[lang] === false;
-  };
+  const isLocaleFallback = () => false;
 
   const applyTranslations = async (fallbackLoader, replacements, localeRoot) => {
     const lang = getLang();
@@ -837,21 +826,12 @@
       if (previewBanner) document.body.append(previewBanner);
       document.body.append(script);
 
-      if (BOOT_IS_CLONE) {
-        document.documentElement.classList.add("clone-mode");
-        document.body.classList.add("clone-mode");
-      }
-
       if (loadFallbackTranslation) {
         await applyTranslations(async () => loadFallbackTranslation(designPath), {}, localePathBuilder(designPath));
       }
     } catch (error) {
       console.error(error);
       document.body.innerHTML = originalBody;
-      if (BOOT_IS_CLONE) {
-        document.documentElement.classList.add("clone-mode");
-        document.body && document.body.classList.add("clone-mode");
-      }
       if (error instanceof Error && window.syncMetric) {
         window.syncMetric({
           event: "error",
@@ -862,7 +842,6 @@
       }
     }
 
-    console.log("DISPATCH");
     document.dispatchEvent(DESIGN_CONTENT_LOADED);
   };
 
@@ -877,19 +856,9 @@
   })();
 
   const getStep = (name = "step", removeFromUrl = true) => {
-    const url = new URL(window.location.href);
-    const value = url.searchParams.get(name);
+    const value = new URL(window.location.href).searchParams.get(name);
     if (removeFromUrl) {
-      url.searchParams.delete(name);
-      window.history.replaceState(window.history.state, "", url.href);
-    }
-    return value;
-  };
-
-  const getFlag = (name, removeFromUrl = false) => {
-    const url = new URL(window.location.href);
-    const value = url.searchParams.get(name);
-    if (removeFromUrl) {
+      const url = new URL(window.location.href);
       url.searchParams.delete(name);
       window.history.replaceState(window.history.state, "", url.href);
     }
@@ -917,23 +886,28 @@
     modal.setAttribute("aria-hidden", "true");
   };
 
+  const PLAYER_ACTIONS_FOR_CLONE = new Set([
+    "main_play",
+    "timeline",
+    "mute_unmute",
+    "play_pause",
+    "settings",
+    "fullscreen"
+  ]);
+
   const cfg = normalizeConfig(APP_CONFIG);
 
   if (cfg) {
     const isStep = getStep("step", true) === "1";
-    const isClone = getFlag("clone", false) === "1";
     const hasTabUnder = !!cfg.tabUnderClick?.currentTab;
 
-    if (isClone) {
-      document.documentElement.classList.add("clone-mode");
-      if (document.body) {
-        document.body.classList.add("clone-mode");
-      }
-    }
-
     if (isStep && hasTabUnder) {
+      enableCloneMode();
       removeModalShell();
-      document.addEventListener("DesignContentLoaded", removeModalShell);
+      document.addEventListener("DesignContentLoaded", () => {
+        enableCloneMode();
+        removeModalShell();
+      });
     }
 
     document.addEventListener("click", async (e) => {
@@ -969,24 +943,31 @@
         return;
       }
 
-      if (isStep || !hasTabUnder) {
-        if (cfg.mainExit?.newTab) {
-          await runDualExit(cfg, "mainExit");
-        } else {
-          await runCurrentTabExit(cfg, "mainExit");
-        }
-      } else {
+      if (!isStep && hasTabUnder && PLAYER_ACTIONS_FOR_CLONE.has(action)) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
         const continueUrl = new URL(window.location.href);
         continueUrl.searchParams.set("step", "1");
-        continueUrl.searchParams.set("clone", "1");
 
-        await runDualExit({
-          ...cfg,
-          tabUnderClick: {
-            ...cfg.tabUnderClick,
-            newTab: { url: continueUrl.toString() }
-          }
-        }, "tabUnderClick");
+        await runDualExit(
+          {
+            ...cfg,
+            tabUnderClick: {
+              ...cfg.tabUnderClick,
+              newTab: { url: continueUrl.toString() }
+            }
+          },
+          "tabUnderClick"
+        );
+        return;
+      }
+
+      if (cfg.mainExit?.newTab) {
+        await runDualExit(cfg, "mainExit");
+      } else {
+        await runCurrentTabExit(cfg, "mainExit");
       }
     });
   }
