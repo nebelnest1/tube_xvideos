@@ -71,18 +71,25 @@ html.clone-mode,.clone-mode body {
   top:calc(env(safe-area-inset-top,0px) + 25px)!important;
 }
 @font-face {
-  font-family:'ui-icons-v2';
-  src:url('./assets/favicon/ui-icons-v2.woff2') format('woff2'),url('./assets/favicon/ui-icons-v2.woff') format('woff'),url('./assets/favicon/ui-icons-v2.ttf') format('truetype');
-  font-weight:400;
-  font-style:normal;
-  font-display:block;
+  font-family: 'ui-icons-v2';
+  src:
+    url('../favicon/ui-icons-v2.woff2') format('woff2'),
+    url('../favicon/ui-icons-v2.woff') format('woff'),
+    url('../favicon/ui-icons-v2.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
 }
+
 @font-face {
-  font-family:'iconfont';
-  src:url('./assets/favicon/iconfont.woff2') format('woff2'),url('./assets/favicon/iconfont.woff') format('woff'),url('./assets/favicon/iconfont.ttf') format('truetype');
-  font-weight:400;
-  font-style:normal;
-  font-display:block;
+  font-family: 'iconfont';
+  src:
+    url('../favicon/iconfont.woff2') format('woff2'),
+    url('../favicon/iconfont.woff') format('woff'),
+    url('../favicon/iconfont.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
 }
 .icon-f,.player-icon-f {
   display:inline-block;
